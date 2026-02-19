@@ -1,0 +1,92 @@
+
+================================================================================
+HOW TO DOWNLOAD AAII SENTIMENT DATA
+================================================================================
+
+METHOD 1: From AAII Website (Best - Most Complete Data)
+--------------------------------------------------------
+1. Visit: https://www.aaii.com/sentimentsurvey/sent_results
+
+2. You'll see a table with columns like:
+   - Date (or Week Ending, or Reported Date)
+   - Bullish (%)
+   - Neutral (%)
+   - Bearish (%)
+
+3. Copy the entire table:
+   - Click and drag to select all rows
+   - Press Ctrl+C (Windows) or Cmd+C (Mac)
+
+4. Paste into Excel or Google Sheets:
+   - Open Excel or Google Sheets
+   - Press Ctrl+V (Windows) or Cmd+V (Mac)
+   - Data should appear in columns
+
+5. Save the file:
+   - In Excel: File > Save As
+   - Format: CSV (Comma delimited) (*.csv)
+   - Save to: data/raw/aaii_sentiment.csv
+   
+   OR
+   
+   - Format: Excel Workbook (*.xlsx)
+   - Save to: data/raw/aaii_sentiment.xlsx
+
+6. Run the processing script:
+   python code/download_aaii_data.py
+
+
+METHOD 2: From Historical Downloads (if available)
+---------------------------------------------------
+Some data aggregators provide AAII historical data:
+
+A) Quandl/Nasdaq Data Link (may require API key):
+   https://data.nasdaq.com/data/AAII/
+   
+B) Check your institutional access:
+   - Bloomberg Terminal
+   - FactSet
+   - Refinitiv
+
+C) Alternative sentiment data sources:
+   - Investor Intelligence Survey
+   - Market Vane
+   - Sentix
+
+
+Expected Data Format
+--------------------
+The final CSV should look like this:
+
+Date,Bullish,Neutral,Bearish
+2004-01-08,51.5,26.2,22.3
+2004-01-15,49.2,28.3,22.5
+...
+
+Or with percent signs:
+
+Date,Bullish %,Neutral %,Bearish %
+2004-01-08,51.5%,26.2%,22.3%
+2004-01-15,49.2%,28.3%,22.5%
+
+
+Troubleshooting
+---------------
+If the script doesn't recognize your file:
+1. Make sure the file is in data/raw/
+2. Make sure it has a date column
+3. Make sure it has Bullish, Neutral, Bearish columns
+4. Column names don't have to be exact - the script will try to detect them
+
+Questions?
+----------
+The script will automatically:
+- Detect date columns
+- Detect sentiment percentage columns  
+- Remove % signs
+- Convert to numeric values
+- Filter to 2004-2024
+- Aggregate weekly to monthly
+- Calculate bull-bear spread
+
+================================================================================

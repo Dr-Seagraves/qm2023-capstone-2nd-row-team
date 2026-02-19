@@ -1,0 +1,38 @@
+# Capstone Project - Python Dependencies
+# =======================================
+# Install with: pip install -r requirements.txt
+
+# Core data analysis
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Data downloading
+requests>=2.28.0
+pandas-datareader>=0.10.0
+fredapi>=0.5.0  # For FRED API access (Michigan sentiment data)
+
+# Web scraping (for AAII if needed)
+beautifulsoup4>=4.11.0
+lxml>=4.9.0
+
+# Excel file support
+openpyxl>=3.0.0
+xlrd>=2.0.0
+
+# Statistical analysis
+scipy>=1.10.0
+statsmodels>=0.14.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Pretty terminal output (optional)
+rich>=13.0.0
+
+# Jupyter notebook support (optional)
+jupyter>=1.0.0
+ipykernel>=6.0.0
+
+# Data validation
+# pandas-schema>=0.3.6
