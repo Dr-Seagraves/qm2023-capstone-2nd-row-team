@@ -18,6 +18,7 @@ Semester-long capstone for Statistics II: Data Analytics.
 Run `python code/config_paths.py` to verify paths.
 
 Direction of research 
+
 Researching Consumer Sentiment and the Stock Market Returns, using data from the University of Michigan's Survey of Consumers, AAII Investor Sentiment Survey, Ken French Factor Library and FRED. 
 Research Question: Does retail investor sentiment predict short-term stock market returns, or does it act as a contrarian indicator?
 This research will help us to find out if the market predicts how people feel, or vice versa. How does the stock market affect consumer emotions? Our research will help us to find out if they are correlated or do consumer's feelings affect the future stock market. 
