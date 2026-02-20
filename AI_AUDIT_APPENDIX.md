@@ -84,16 +84,16 @@ panel.to_csv('data/final/analysis_panel.csv', index=False)
 > "Generate a comprehensive data quality report documenting data sources, cleaning decisions, merge strategy, and reproducibility"
 
 **AI-Generated Content**:
-- ✅ Well-structured sections (TOC, executive summary, technical detail)
-- ✅ Included code snippets and examples
-- ⚠️ **Generic justifications** (e.g., "Clean data is important")
-- ⚠️ **Missed economic rationale** (e.g., why last-of-month aggregation vs. average)
+- Well-structured sections (TOC, executive summary, technical detail)
+- Included code snippets and examples
+- Generic justifications (e.g., "Clean data is important")
+- Missed economic rationale (e.g., why last-of-month aggregation vs. average)
 
 **Human Enhancements**:
-- Added **economic justifications** for all cleaning decisions
-- Included **before/after counts** for all transformations
-- Added **ethical considerations** section (data loss, representativeness)
-- Incorporated **research questions** based on dataset
+- Added economic justifications for all cleaning decisions
+- Included before/after counts for all transformations
+- Added ethical considerations section (data loss, representativeness)
+- Added research questions based on dataset
 
 
 
