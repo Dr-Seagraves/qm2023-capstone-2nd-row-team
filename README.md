@@ -17,6 +17,27 @@ Semester-long capstone for Statistics II: Data Analytics.
 
 Run `python code/config_paths.py` to verify paths.
 
+## Interactive Dashboard v2
+
+The project includes a second interactive dashboard that maps variable codes
+to readable names using `data/final/data_dictionary.md`.
+
+### Generate dashboard
+
+```bash
+python3 code/create_interactive_dashboard_v2.py
+```
+
+### Output file
+
+- `results/reports/M2_interactive_dashboard_v2.html`
+
+### Open in browser (dev container)
+
+```bash
+"$BROWSER" "results/reports/M2_interactive_dashboard_v2.html"
+```
+
 Team Members : Steffi Brewer, Nicholas Langkamp, Katrina Baiza - Nicholas is project manager, Katrina is data analyst and Steffi is the recorder. (we shared the codespace and work equally) 
 
 Direction of research
