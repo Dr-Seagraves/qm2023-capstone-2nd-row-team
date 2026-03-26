@@ -45,4 +45,23 @@ Direction of research
 Researching Consumer Sentiment and the Stock Market Returns, using data from the University of Michigan's Survey of Consumers, AAII Investor Sentiment Survey, Ken French Factor Library and FRED. Research Question: Does retail investor sentiment predict short-term stock market returns, or does it act as a contrarian indicator? This research will help us to find out if the market predicts how people feel, or vice versa. How does the stock market affect consumer emotions? Our research will help us to find out if they are correlated or do consumer's feelings affect the future stock market.
 Key Variables include, excess market returns, consumer and investor sentiment, and control factors like interest rates.
 
-Prelimary hypothesis - We think that consumer sentiment will have a marginal impact on market returns,we think that at times in our time period (2004-2024) we will see fluctuations in the correlation 
+Before analysis, we expect that consumer sentiment will have a marginal impact on market returns, we think that at times in our time period (2004-2024) we will see fluctuations in the correlation. 
+
+## Preliminary Hypotheses
+
+Below is the consolidated set of null hypotheses implied by our research questions and exploratory analysis.
+
+1. **H0-1 (Michigan Sentiment Predictability):** Lagged Michigan consumer sentiment has no predictive effect on monthly market returns after controls (coefficient on lagged Michigan sentiment equals 0).
+2. **H0-2 (AAII Incremental Predictability):** AAII bull-bear spread has no incremental explanatory power for monthly market returns once Michigan sentiment and controls are included (coefficient on bull-bear spread equals 0).
+3. **H0-3 (Contrarian Channel):** Higher investor bullishness is not associated with lower subsequent returns (no contrarian effect).
+4. **H0-4 (Consumer Confidence Channel):** Higher consumer sentiment is not associated with higher subsequent returns (no confidence channel effect).
+5. **H0-5 (Sentiment Divergence):** Consumer sentiment and investor sentiment are equally uninformative in divergence periods (no differential predictive content when they disagree).
+6. **H0-6 (Factor-Augmented Alpha):** Sentiment variables do not explain return variation beyond Fama-French-style controls (all sentiment terms jointly equal 0 in factor-augmented models).
+7. **H0-7 (Early Warning in Crises):** Sentiment variables do not provide early warning information before market downturn episodes.
+8. **H0-8 (Contemporaneous Correlation):** The contemporaneous correlation between market returns and sentiment measures is 0.
+9. **H0-9 (Lag Structure):** Correlations between returns and lagged sentiment (e.g., 1, 2, 3, 6, 12 months) are jointly 0.
+10. **H0-10 (Regime Stability):** The sentiment-return relationship is stable across subsamples/regimes (pre-crisis, post-crisis, pandemic), meaning interaction/subsample differences are 0.
+11. **H0-11 (Control-Factor Relevance):** Factor controls (such as SMB and HML) have no linear relationship with market returns in our sample.
+12. **H0-12 (Seasonality):** Market returns contain no systematic seasonal component (seasonal term equals 0 in decomposition-based interpretation).
+
+These H0 statements can be directly paired with alternative hypotheses in M3 regression/event-study testing and reported with p-values/confidence intervals.
