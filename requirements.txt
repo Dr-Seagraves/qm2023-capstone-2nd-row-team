@@ -26,6 +26,7 @@ statsmodels>=0.14.0
 # Visualization
 matplotlib>=3.7.0
 seaborn>=0.12.0
+plotly>=5.20.0
 
 # Pretty terminal output (optional)
 rich>=13.0.0

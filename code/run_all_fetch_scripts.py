@@ -4,7 +4,7 @@ Master Script - Run All Data Fetch and Merge Scripts
 
 Executes the complete data pipeline in sequence:
 1. Fetch Michigan Consumer Sentiment
-2. Fetch AAII Sentiment Survey
+2. Process AAII Sentiment Survey
 3. Fetch Ken French Factors
 4. Merge into final panel dataset
 
@@ -13,7 +13,7 @@ Usage:
     
     Or run individually:
     python code/fetch_michigan_sentiment.py
-    python code/fetch_aaii_sentiment.py
+    python code/process_aaii_excel.py
     python code/fetch_french_factors.py
     python code/merge_final_panel.py
 """
@@ -67,8 +67,14 @@ print("# STEP 2/4: AAII INVESTOR SENTIMENT")
 print("#" * 70)
 
 try:
-    import fetch_aaii_sentiment
-    fetch_aaii_sentiment.main()
+    # Prefer processing the uploaded .xls file when available.
+    aaii_xls_file = CODE_DIR.parent / 'data' / 'raw' / 'aaii_sentiment.xls'
+    if aaii_xls_file.exists():
+        import process_aaii_excel
+        process_aaii_excel.main()
+    else:
+        import fetch_aaii_sentiment
+        fetch_aaii_sentiment.main()
     aaii_success = True
 except Exception as e:
     print(f"\n⚠ Warning: AAII sentiment fetch failed: {e}")
@@ -142,7 +148,8 @@ else:
     print("\nSome steps failed. Please review error messages above.")
     print("\nYou can run individual scripts separately:")
     print("  python code/fetch_michigan_sentiment.py")
-    print("  python code/fetch_aaii_sentiment.py")
+    print("  python code/process_aaii_excel.py")
+    print("  python code/fetch_aaii_sentiment.py  # fallback option")
     print("  python code/fetch_french_factors.py")
     print("  python code/merge_final_panel.py")
 

@@ -5,7 +5,7 @@
 
 ## Dataset Overview
 
-- **Dataset Name**: `sentiment_analysis_panel.csv`
+- **Dataset Name**: `analysis_panel.csv`
 - **File Location**: `data/final/analysis_panel.csv`
 - **Structure**: Long-format panel (Time series)
 - **Temporal Unit**: Monthly observations (end-of-month)

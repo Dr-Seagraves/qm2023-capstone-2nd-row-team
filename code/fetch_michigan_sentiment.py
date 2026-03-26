@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from datetime import datetime
+import os
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -29,7 +30,7 @@ START_YEAR = 2004
 END_YEAR = 2024
 
 # FRED API Key for automatic download
-FRED_API_KEY = "50023fd424a7ec3070a97a36dc325fab"
+FRED_API_KEY = os.getenv("FRED_API_KEY", "").strip()
 
 # ==============================================================================
 # DATA DOWNLOAD FUNCTIONS
@@ -98,8 +99,8 @@ def download_from_fred():
         print("Downloading Michigan sentiment data from FRED...")
         print(f"  Period: {START_YEAR}-{END_YEAR}")
         
-        # Initialize FRED API
-        fred = Fred(api_key=FRED_API_KEY)
+        # Initialize FRED API (works with or without API key, but key is recommended)
+        fred = Fred(api_key=FRED_API_KEY or None)
         
         # Download Index of Consumer Sentiment (main index)
         print("  Fetching Index of Consumer Sentiment (UMCSENT)...")
@@ -154,6 +155,8 @@ def download_from_fred():
         print("  ✓ Installed fredapi. Please run the script again.")
         raise
     except Exception as e:
+        if not FRED_API_KEY:
+            print("  Note: FRED_API_KEY is not set; set it as an environment variable if needed.")
         print(f"  ✗ Error downloading from FRED: {e}")
         raise
 

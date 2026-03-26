@@ -13,7 +13,8 @@ You now have a complete data pipeline to collect and merge four datasets for 200
 
 ### Fetch Scripts (code/)
 - `fetch_michigan_sentiment.py` - Michigan consumer sentiment
-- `fetch_aaii_sentiment.py` - AAII investor sentiment
+- `process_aaii_excel.py` - Process uploaded AAII Excel data (`aaii_sentiment.xls`)
+- `fetch_aaii_sentiment.py` - AAII investor sentiment (CSV/XLSX/manual fallback)
 - `fetch_french_factors.py` - Ken French factors ✅ TESTED
 - `merge_final_panel.py` - Merge all into final panel
 - `run_all_fetch_scripts.py` - Master script to run all
@@ -68,7 +69,7 @@ The script will automatically try to download from FRED if the raw file is missi
 ```bash
 # After placing manual downloads in data/raw/
 python code/fetch_michigan_sentiment.py
-python code/fetch_aaii_sentiment.py
+python code/process_aaii_excel.py
 python code/fetch_french_factors.py  # Already done!
 ```
 
@@ -81,6 +82,8 @@ python code/merge_final_panel.py
 ```bash
 python code/run_all_fetch_scripts.py
 ```
+
+The master script will automatically use `process_aaii_excel.py` when `data/raw/aaii_sentiment.xls` is present.
 
 ## 📊 Expected Output
 
