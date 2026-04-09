@@ -53,6 +53,15 @@
     - Confirmed plot choices match assignment requirements.
     - Reviewed each caption for economic relevance.
     - Checked file paths, output locations, and reproducibility.
+ 
+### Task: HTML Dashboard
+- Files:
+    - M2_interactive_dashboard_v2.html
+    - M2_EDA_summary.md
+ - AI Help
+    - AI wrote the HTML code
+ - Human verification:
+    - We had AI re-write the code several times because the HTML dashboard was not very readable at first. 
 
 ## 5. Validation and Quality Control
 
