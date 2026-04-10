@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"Corbis": {
+			"url": "https://www.corbis.ai/api/mcp/universal?apikey=corbis_mcp_-SBiYeqrE3De7Tpc7_Sdjthn7P5vs98c5DOnnK2UxZMCukPJ",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}
