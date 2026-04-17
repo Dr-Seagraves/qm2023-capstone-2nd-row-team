@@ -65,3 +65,51 @@ Below is the consolidated set of null hypotheses implied by our research questio
 12. **H0-12 (Seasonality):** Market returns contain no systematic seasonal component (seasonal term equals 0 in decomposition-based interpretation).
 
 These H0 statements can be directly paired with alternative hypotheses in M3 regression/event-study testing and reported with p-values/confidence intervals.
+
+## M3 Regression and Shock Analysis Deliverables
+
+This repository now includes a full M3 pipeline with:
+
+- Fixed-effects style return modeling (calendar-month fixed effects for `mkt_ret`)
+- Entity fixed effects on the long-form panel (`C(variable)`)
+- Difference-in-differences tests for:
+	- 2008 Financial Crisis shock (post-2008-09)
+	- COVID shock (post-2020-03)
+- Publication-ready plots and regression tables
+- An interpretation memo in plain economic language
+
+### Run M3 pipeline
+
+```bash
+/home/codespace/.python/current/bin/python code/capstone_models.py
+```
+
+### M3 outputs
+
+- Report memo (root): `M3_interpretation.md`
+- Report memo (reports folder): `results/reports/M3_interpretation.md`
+- Tables:
+	- `results/tables/m3_market_fe_results.csv`
+	- `results/tables/m3_entity_fe_results.csv`
+	- `results/tables/m3_did_results.csv`
+	- `results/tables/m3_bp_test_results.csv`
+	- `results/tables/m3_vif_results.csv`
+	- `results/tables/m3_robustness_checks.csv`
+	- `results/tables/m3_model_comparison_table.csv`
+- Figures:
+	- `results/figures/m3_treated_vs_control_trends.png`
+	- `results/figures/m3_did_coefficients.png`
+	- `results/figures/m3_market_model_fit.png`
+	- `results/figures/m3_residuals_vs_fitted.png`
+	- `results/figures/m3_residuals_qq.png`
+	- `results/figures/m3_residuals_hist.png`
+
+### M3 summary highlights
+
+- Lagged sentiment terms are not statistically significant in the monthly return model after factor controls.
+- Factor channels remain economically important (SMB and HML positive, CMA negative).
+- DiD results show sentiment variables responded differently from control series after major shocks:
+	- Post-2008 differential effect is positive.
+	- Post-COVID differential effect is negative and larger in magnitude.
+
+Note: because this dataset is a single aggregate market time series plus covariates, classic multi-entity firm-level fixed effects on returns are not directly available. The M3 entity FE and DiD models are therefore estimated on the stacked long panel where each variable is treated as an entity.

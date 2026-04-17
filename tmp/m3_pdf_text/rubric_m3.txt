@@ -1,0 +1,395 @@
+Milestone 3: Econometric Models Grading Rubric
+QM 2023 Capstone Project
+Total Points: 50 Grading Mode: Team grade (all members receive same score unless peer evaluation
+indicates disparity)
+
+Component Breakdown
+1. Model Specification (15 points)
+Excellent (13-15 points):
+✅ Model A (Fixed Effects): Correctly estimated with entity_effects=True and
+time_effects=True
+✅ Model B: Chosen specification (DiD/ARIMA/ML) is appropriate for research question
+✅ Variable selection: Predictors are economically sensible (e.g., 2-month lag for FEDFUNDS based on
+M2 EDA)
+✅ Clustered standard errors: Used correctly (cov_type='clustered', cluster_entity=True)
+✅ Code structure: Clear sections, comments explain logic, reproducible
+Satisfactory (9-12 points):
+✅ Both models estimated, but minor specification issues (e.g., forgot time FE, or used wrong lag)
+✅ Variable selection reasonable but not optimal
+✅ Standard errors computed but not clustered (heteroskedasticity concern)
+✅ Code works but lacks clear comments
+Needs Improvement (5-8 points):
+⚠ One model estimated correctly, the other has errors
+⚠ Variable selection is arbitrary (no justification from M2 or theory)
+⚠ No robust standard errors (ignored heteroskedasticity)
+⚠ Code is difficult to follow (poor structure)
+Unsatisfactory (0-4 points):
+❌ Neither model estimated correctly (wrong syntax, output errors)
+❌ Models are nonsensical (e.g., time series regression on panel data)
+❌ Code does not run
+
+2. Diagnostics & Robustness (12 points)
+Diagnostics (6 points):
+Excellent (6 points):
+✅ Heteroskedasticity test: Breusch-Pagan or visual inspection (residuals vs. fitted plot)
+1/9
+
+✅ Multicollinearity (VIF): Calculated for all predictors; high VIF addressed (variable dropped or
+combined)
+✅ Residual plots: Q-Q plot or histogram shows approximate normality (or fat tails acknowledged)
+✅ All diagnostics interpreted: Not just reported, but explained (e.g., "VIF > 10 for SIZE, so we
+dropped it")
+Satisfactory (4-5 points):
+✅ 2 of 3 diagnostics run (e.g., VIF + residual plot, but no heteroskedasticity test)
+✅ Diagnostics reported but interpretation is weak
+Needs Improvement (2-3 points):
+⚠ Only 1 diagnostic run
+⚠ Diagnostics run but not interpreted
+Unsatisfactory (0-1 points):
+❌ No diagnostics run
+
+Robustness Checks (6 points):
+Excellent (6 points):
+✅ At least 3 robustness checks conducted:
+Alternative lag structures (test lags 1, 2, 3)
+Exclusion of outlier periods (e.g., COVID crash)
+Sector subsamples (estimate model separately for sensitive vs. resilient sectors)
+Placebo test (for DiD: run regression on pre-treatment period)
+✅ Results compared: "Baseline model: β = -0.025. Excluding COVID: β = -0.023. Results are robust."
+✅ Implications discussed: "Alternative lags yield similar coefficients, confirming lag 2 is not arbitrary."
+Satisfactory (4-5 points):
+✅ 2 robustness checks conducted
+✅ Results compared but implications not fully discussed
+Needs Improvement (2-3 points):
+⚠ Only 1 robustness check
+⚠ Checks conducted but results not compared
+Unsatisfactory (0-1 points):
+❌ No robustness checks
+
+3. Interpretation & Economic Reasoning (18 points)
+Coefficient Interpretation (10 points):
+Excellent (9-10 points):
+2/9
+
+✅ Coefficients interpreted in economic terms: "A 1 pp increase in FEDFUNDS reduces REIT returns
+by 2.5 pp"
+✅ Magnitude assessed: "During 2022-2023 rate hike (5.25 pp), model predicts 13% decline"
+✅ Sign and significance discussed: "Negative coefficient (β < 0) is statistically significant (p = 0.012)
+and economically sensible (leverage channel)"
+✅ Factor premiums explained: "MOM coefficient (0.042) indicates trend-following profits"
+✅ Non-significant results acknowledged: "SIZE is not significant (p = 0.465) after controlling for
+factors and FE"
+Satisfactory (6-8 points):
+✅ Coefficients interpreted but not always in economic terms ("β = -0.025" without explaining what this
+means)
+✅ Magnitude mentioned but not assessed for economic importance
+✅ Sign and significance noted but not explained WHY
+Needs Improvement (3-5 points):
+⚠ Minimal interpretation ("Coefficient is negative and significant")
+⚠ No discussion of magnitude or economic mechanism
+Unsatisfactory (0-2 points):
+❌ No interpretation provided
+❌ Interpretation is incorrect (e.g., "1% increase" vs. "1 pp increase")
+
+Economic Mechanisms & Theory (8 points):
+Excellent (7-8 points):
+✅ Economic mechanisms explained: Leverage channel (higher rates → higher financing costs),
+Discount rate channel (higher rates → lower NPV of cash flows)
+✅ Consistent with theory: Results align with financial economics (e.g., Modigliani-Miller, DCF
+valuation)
+✅ Heterogeneity discussed: "Sector differences reflect variation in leverage, lease structure, and
+demand elasticity"
+✅ Alternative explanations considered: "Could omitted variable (investor sentiment) confound
+results?"
+Satisfactory (5-6 points):
+✅ Some economic reasoning provided but not comprehensive
+✅ Theory mentioned but not deeply integrated
+Needs Improvement (2-4 points):
+⚠ Minimal economic reasoning (just statistical descriptions)
+⚠ No connection to theory
+Unsatisfactory (0-1 points):
+3/9
+
+❌ No economic reasoning (purely mechanical interpretation)
+
+4. Presentation & Documentation (5 points)
+Regression Tables (3 points):
+Excellent (3 points):
+✅ Publication-ready tables: Formatted with clear columns (Variable, Coefficient, SE, t-stat, p-value)
+✅ Comparison table: Side-by-side for Model A and Model B
+✅ Notes row: Indicates FE, time FE, clustered SEs, N, R²
+✅ Significance stars: *** p<0.01, ** p<0.05, * p<0.10
+Satisfactory (2 points):
+✅ Tables present but formatting could be improved
+✅ Comparison table missing or incomplete
+Needs Improvement (1 point):
+⚠ Tables are raw Python output (not formatted)
+Unsatisfactory (0 points):
+❌ No tables or tables are unreadable
+
+Code & Memo Quality (2 points):
+Excellent (2 points):
+✅ Code: Clean, modular, well-commented, reproducible
+✅ M3_interpretation.md: Complete, professional, addresses all required sections (findings,
+diagnostics, robustness, caveats)
+Satisfactory (1 point):
+✅ Code works but lacks comments
+✅ Interpretation memo present but incomplete
+Needs Improvement (0 points):
+❌ Code is messy or hard to follow
+❌ Memo missing or minimal
+
+AI Audit Appendix Requirement (Pass/Fail, Zero Credit if Missing)
+Required: AI_AUDIT_APPENDIX.md documenting all AI tool use.
+Pass (Credit for M3):
+✅ All AI tools used are listed
+4/9
+
+✅ Specific prompts for econometric decisions (e.g., "How do I interpret a Fixed Effects coefficient?")
+✅ AI output shown (code snippets, interpretations)
+✅ Verification step documented (ran code, checked diagnostics)
+✅ Critique provided (corrected AI misinterpretations)
+Fail (Zero Credit for M3):
+❌ No AI Audit Appendix submitted
+❌ Appendix is generic with no details
+Note: Even if models are perfect, missing AI Audit = 0/50 points per course policy.
+
+Bonus Points (Optional, up to +5 points)
+Exceptional work beyond requirements:
++2 points: Three-way Fixed Effects (REIT + Time + Sector-Time interactions)
++2 points: Modern DiD methods (Callaway & Sant'Anna for staggered adoption)
++1 point: Heterogeneous treatment effects (DiD by sector or size subsample)
++1 point: Monte Carlo simulation or bootstrapped standard errors
+Total Possible: 55 points (50 base + 5 bonus)
+
+Example Grade Calculations
+Team A: Excellent Work (47/50 + 2 bonus = 49/50)
+Model Specification: 15/15 (both models perfect, code clean)
+Diagnostics & Robustness: 11/12 (3 diagnostics + 3 robustness checks; 1 check could be deeper)
+Interpretation: 17/18 (strong economic reasoning, minor gap in alternative explanations)
+Presentation: 4/5 (tables excellent, memo strong but minor typo)
+Bonus: +2 (three-way FE implemented)
+Grade: 49/50 (A+)
+
+Team B: Satisfactory Work (38/50)
+Model Specification: 11/15 (both models run, but clustered SEs forgotten initially)
+Diagnostics & Robustness: 8/12 (2 diagnostics, 2 robustness checks)
+Interpretation: 15/18 (coefficients interpreted, but economic mechanisms could be deeper)
+Presentation: 4/5 (tables good, memo complete)
+Grade: 38/50 (B)
+
+Team C: Needs Improvement (26/50)
+Model Specification: 8/15 (FE correct, DiD has specification error)
+Diagnostics & Robustness: 5/12 (1 diagnostic, 1 robustness check)
+Interpretation: 10/18 (basic interpretation, no economic reasoning)
+5/9
+
+Presentation: 3/5 (tables are raw output, memo incomplete)
+Grade: 26/50 (D+)
+
+Team D: Unsatisfactory (0/50)
+Missing AI Audit Appendix
+Grade: 0/50 (automatic zero per course policy)
+
+Rubric Summary Table
+Component
+
+Excellent
+
+Satisfactory
+
+Needs Improvement
+
+Unsatisfactory
+
+Model Specification (15)
+
+13-15
+
+9-12
+
+5-8
+
+0-4
+
+Diagnostics (6)
+
+6
+
+4-5
+
+2-3
+
+0-1
+
+Robustness (6)
+
+6
+
+4-5
+
+2-3
+
+0-1
+
+Interpretation (10)
+
+9-10
+
+6-8
+
+3-5
+
+0-2
+
+Economic Reasoning (8)
+
+7-8
+
+5-6
+
+2-4
+
+0-1
+
+Presentation (5)
+
+4-5
+
+3
+
+1-2
+
+0
+
+Total (50)
+
+45-50
+
+32-44
+
+17-31
+
+0-16
+
+AI Audit
+
+Pass (required)
+
+Pass (required)
+
+Pass (required)
+
+Fail = 0/50
+
+Bonus (optional)
+
++0 to +5
+
+-
+
+-
+
+-
+
+Grading Timeline
+Submission Deadline: Friday, Week 12 (Apr 17) by 11:59 PM
+Auto-Grading: GitHub Actions checks code execution
+Instructor Grading: Completed within 1 week (by Friday, Week 13)
+Feedback Posted: Blackboard rubric + GitHub comments
+
+How to Use This Rubric
+For Students (Self-Assessment Before Submission)
+Checklist:
+Both Model A (FE) and Model B (DiD/ARIMA/ML) estimated correctly
+Clustered standard errors used in Model A
+At least 3 diagnostics run (heteroskedasticity, VIF, residual plots)
+At least 3 robustness checks conducted (alternative lags, exclusions, subsamples)
+All coefficients interpreted in economic terms (not just statistical)
+Economic mechanisms explained (leverage, discount rates, etc.)
+Regression tables are publication-ready (formatted, not raw output)
+6/9
+
+M3_interpretation.md complete with findings, diagnostics, robustness, caveats
+AI_AUDIT_APPENDIX.md submitted and detailed
+Code runs from scratch without errors
+Estimated Score Calculator:
+"Model A perfect (15/15), Model B minor issue (12/15 = 13). Diagnostics solid (6/6), robustness good
+(5/6). Interpretation strong (9/10 + 7/8 = 16/18). Tables formatted (4/5). Total: 15 + 6 + 5 + 16 + 4 =
+46/50. We should add one more robustness check to get full points."
+
+For Instructors (Grading Guide)
+1. Auto-check: Did code execute without errors?
+2. Model verification: Run code manually; check that FE and DiD/ARIMA/ML are correctly specified
+3. Diagnostics review: Verify tests ran and were interpreted (not just copy-pasted)
+4. Interpretation quality: Do students explain WHY coefficients are economically meaningful?
+5. AI Audit check: Is appendix present and detailed?
+6. Feedback: Provide specific, actionable comments
+Example Feedback:
+"Your FE model is excellent (clustered SEs, correct specification). However, your DiD model has a parallel
+trends violation (pre-trend divergence visible in plot). Consider adding a placebo test to assess this
+concern. Also, your interpretation of the SIZE coefficient needs economic reasoning—WHY is it not
+significant after controlling for factors? (-2 points Model Specification, -2 points Interpretation)"
+
+Frequently Asked Questions
+Q: We only did 2 robustness checks instead of 3. Will we lose points?
+A: Robustness Checks section = 6 points. With 2 checks (instead of 3), you'll receive 4-5/6 points (Satisfactory).
+Lost: 1-2 points.
+
+Q: Our DiD model failed the placebo test (found significant effect in pre-period). Is that okay?
+A: No. A failed placebo test suggests parallel trends are violated, which undermines the causal interpretation
+of your DiD estimate. Options:
+1. Acknowledge this limitation in M3_interpretation.md and discuss why DiD may not be appropriate for
+your data.
+2. Choose a different Model B (ARIMA or ML comparison instead of DiD).
+3. Restrict DiD to a subsample where parallel trends are more plausible.
+Grading impact: If you acknowledge and address the violation, you'll receive partial credit. If you ignore it,
+you'll lose points for Economic Reasoning.
+
+Q: Can we use AI to help interpret our regression coefficients?
+7/9
+
+A: Yes, but you must verify that AI's interpretation is correct. Example:
+AI output: "A 1% increase in FEDFUNDS reduces returns by 2.5%."
+Your verification: "This phrasing is ambiguous. Correct: 'A 1 percentage point increase in FEDFUNDS
+reduces returns by 2.5 percentage points.'"
+Document this in AI_AUDIT_APPENDIX.md. If you don't verify and submit incorrect interpretations, you'll
+lose points.
+
+Q: We have heteroskedasticity but forgot to use clustered SEs. Can we resubmit?
+A: No. Milestone grades are final. However, if you catch this before the deadline, you can fix it and resubmit
+(no penalty if within deadline window).
+Grading impact: Without clustered SEs, you'll lose points in Model Specification (down from 15/15 to
+~11/15) and Diagnostics (down from 6/6 to ~4/6). Total lost: ~6 points.
+
+Q: Our R² is 0.35. Will we lose points?
+A: No. R² measures fit, not coefficient validity. What matters:
+Are coefficients statistically significant? (t-stats, p-values)
+Are they economically sensible? (signs, magnitudes)
+Are they robust? (alternative specs yield similar results)
+Low R² is common in financial data. Explain this in M3_interpretation.md: "While R² = 0.35 indicates that
+35% of return variation is explained, our coefficient estimates are precise and robust. Financial returns are
+inherently noisy due to unobserved factors (sentiment, liquidity), so moderate R² is expected."
+
+Grading Philosophy
+This rubric emphasizes:
+1. Methodological rigor: Did you test assumptions and apply correct fixes?
+2. Economic intuition: Do you understand WHY results make sense?
+3. Honest self-assessment: Did you acknowledge limitations?
+4. Reproducibility: Can someone else run your code and get identical results?
+We are not grading:
+Statistical sophistication (advanced models beyond course scope)
+Perfect R² (unrealistic for financial data)
+Length of code (concise is fine)
+We are grading:
+Did you apply course concepts correctly?
+Can you defend your methodological choices?
+Do you understand the economic implications of your results?
+8/9
+
+Rubric prepared for QM 2023: Statistics II, Spring 2026, University of Tulsa Contact: Dr. Cayman Seagraves
+(cayman-seagraves@utulsa.edu)
+
+9/9
+
+

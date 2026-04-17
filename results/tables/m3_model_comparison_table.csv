@@ -1,0 +1,8 @@
+term,Model_A_TWFE,Model_B_DiD
+post_covid,0.0151 (0.1461),
+post_gfc,-0.5316 (0.4375),
+treated_sentiment,0.0559 (0.0508),
+treated_sentiment:post_covid,,-0.5286** (0.2634)
+treated_sentiment:post_gfc,,0.2010 (0.3456)
+Notes,Entity FE=Yes; Time FE=Yes; Clustered SE by variable=Yes,Entity FE=Yes; Time FE=Yes; Clustered SE by variable=Yes
+Significance,"*** p<0.01, ** p<0.05, * p<0.10","*** p<0.01, ** p<0.05, * p<0.10"

@@ -76,6 +76,38 @@
 - Human verification: 
     - We made sure the data was converted into long format appropriately 
 
+## Task: FE and DiD
+
+- Files:
+    - README.md
+    - generate_m3_analysis.py
+    - FE market model table: m3_market_fe_results.csv
+    - Entity FE table: m3_entity_fe_results.csv
+    - DiD table: m3_did_results.csv
+    - Treated vs control trends: m3_treated_vs_control_trends.png
+    - DiD coefficient plot: m3_did_coefficients.png
+    - Market model fit plot: m3_market_model_fit.png
+    - M3_interpretation.md
+    - M3_interpretation.m
+- Prompts: 
+    - "Help me create an entity fixed effects regression model for the data and also do a difference in difference regression that looks at the shocks of COVID and the 2008 financial crisis on the data if the tests can be applied. Use a bunch of easily-understandable economic interpretation so we can understand the results in M3_interpretation.md. Make sure to include graphs and plots. Make sure everything is completed in the README M3.pdf and that it satisfies the rubric M3.pdf. Do not fill out the AI audit (and ignore that section on the rubric)"
+    - "Yes, please do that. You may use an OCR tool"
+    - "Please do so"
+- AI Help:
+    - Implemented the full M3 econometrics workflow and generated all requested deliverables (entity fixed effects, DiD for 2008/COVID shocks, plots, and plain-language interpretation). It also verified against the rubric
+    - Added two-way FE style Model A with entity and time fixed effects plus clustered SE by entity in generate_m3_analysis.py.
+    - Updated DiD to use clustered SE by entity in generate_m3_analysis.py.
+    - Added diagnostics:
+        - Breusch-Pagan table: m3_bp_test_results.csv
+        - VIF table: m3_vif_results.csv
+    - Residual plots: m3_residuals_vs_fitted.png, m3_residuals_qq.png, m3_residuals_hist.png
+    - Added 3 robustness checks and comparison output: m3_robustness_checks.csv.
+    - Added publication-style side-by-side model table with stars/notes row: m3_model_comparison_table.csv.
+    - Added deliverable-name wrapper script: capstone_models.py.
+    - Updated README run instructions and output list in README.md.
+- Human verfication:
+    - We looked over the output and regressions to verify, noticed some errors, and either manually changed things or reprompted AI (disclosed in this same section)
+
 ## 5. Validation and Quality Control
 
 - Re-ran analysis from raw M1 panel output to verify reproducibility.

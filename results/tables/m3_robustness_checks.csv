@@ -1,0 +1,4 @@
+check,metric,baseline_value,check_value,aux_value,interpretation
+alternative_lags,sentiment_coef_lag1_vs_lag2_vs_lag3,0.0034854662034936677,0.012228204579842536,0.01092024870131658,Signs/magnitudes across lags indicate whether lag choice is sensitive.
+exclude_covid_crash_window,did_post_covid_interaction,-0.5286066350085661,-0.5483832825368697,,Close values imply COVID interaction is not driven only by the crash window.
+placebo_pre_gfc,treated_sentiment:post_placebo,0.0,-0.4685067912392662,0.17289273102453484,Small/insignificant placebo effects support DiD identification assumptions.
