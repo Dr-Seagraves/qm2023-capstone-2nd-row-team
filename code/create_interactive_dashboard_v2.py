@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from config_paths import FINAL_DATA_DIR, PROJECT_ROOT, REPORTS_DIR
+from panel_format_utils import load_panel_as_wide
 
 
 go = importlib.import_module("plotly.graph_objects")
@@ -341,8 +342,7 @@ def main() -> None:
     data_path = FINAL_DATA_DIR / "analysis_panel.csv"
     dict_path = PROJECT_ROOT / "data" / "final" / "data_dictionary.md"
 
-    df = pd.read_csv(data_path)
-    df["date"] = pd.to_datetime(df["date"])
+    df = load_panel_as_wide(data_path)
 
     metadata = parse_variable_dictionary(dict_path)
 

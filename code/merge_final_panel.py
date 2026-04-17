@@ -9,7 +9,7 @@ Inputs (from data/processed/):
 - aaii_sentiment.csv - AAII Investor Sentiment Survey  
 - french_factors.csv - Kenneth French Factor Data
 
-Output: data/final/analysis_panel.csv
+Output: data/final/analysis_panel.csv (tidy long format)
 
 Merging strategy:
 - Primary frequency: Monthly
@@ -41,8 +41,9 @@ INPUT_FILES = {
     'french': PROCESSED_DATA_DIR / 'french_factors.csv',
 }
 
-# Output file
+# Output files
 OUTPUT_FILE = FINAL_DATA_DIR / 'analysis_panel.csv'
+WIDE_OUTPUT_FILE = FINAL_DATA_DIR / 'analysis_panel_wide.csv'
 
 # ==============================================================================
 # DATA LOADING FUNCTIONS
@@ -250,6 +251,26 @@ def create_summary_statistics(df):
     
     return summary
 
+
+def wide_to_long(df):
+    """
+    Convert wide panel data to tidy long format.
+
+    Args:
+        df: Wide panel DataFrame with one column per variable
+
+    Returns:
+        pd.DataFrame: Long DataFrame with columns [date, variable, value]
+    """
+    value_cols = [col for col in df.columns if col != 'date']
+    df_long = df.melt(
+        id_vars='date',
+        value_vars=value_cols,
+        var_name='variable',
+        value_name='value'
+    )
+    return df_long.sort_values(['date', 'variable']).reset_index(drop=True)
+
 # ==============================================================================
 # MAIN EXECUTION
 # ==============================================================================
@@ -286,8 +307,11 @@ def main():
     
     # Step 4: Save final dataset
     print("\n[Step 4/4] Saving final panel...")
-    df_panel.to_csv(OUTPUT_FILE, index=False)
-    print(f"✓ Saved to: {OUTPUT_FILE}")
+    df_panel_long = wide_to_long(df_panel)
+    df_panel_long.to_csv(OUTPUT_FILE, index=False)
+    df_panel.to_csv(WIDE_OUTPUT_FILE, index=False)
+    print(f"✓ Saved long format to: {OUTPUT_FILE}")
+    print(f"✓ Saved wide companion to: {WIDE_OUTPUT_FILE}")
     
     # Generate summary statistics
     print("\n" + "="*70)
@@ -306,11 +330,12 @@ def main():
     print("="*70)
     print(f"\nFinal dataset ready for analysis:")
     print(f"  Location: {OUTPUT_FILE}")
-    print(f"  Dimensions: {len(df_panel)} rows × {len(df_panel.columns)} columns")
-    print(f"  Variables: {list(df_panel.columns)}")
+    print(f"  Long dimensions: {len(df_panel_long)} rows × {len(df_panel_long.columns)} columns")
+    print(f"  Long columns: {list(df_panel_long.columns)}")
     print("\nNext steps:")
     print("  1. Load the panel: df = pd.read_csv('data/final/analysis_panel.csv')")
-    print("  2. Begin your analysis!")
+    print("  2. If needed, use data/final/analysis_panel_wide.csv for wide format")
+    print("  3. Begin your analysis!")
 
 if __name__ == "__main__":
     main()

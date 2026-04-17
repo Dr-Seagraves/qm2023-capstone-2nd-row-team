@@ -17,6 +17,7 @@ import seaborn as sns
 from statsmodels.tsa.seasonal import seasonal_decompose
 
 from config_paths import FIGURES_DIR, FINAL_DATA_DIR, PROJECT_ROOT
+from panel_format_utils import load_panel_as_wide
 
 
 sns.set_style("whitegrid")
@@ -25,10 +26,7 @@ plt.rcParams["font.size"] = 11
 
 
 def load_data() -> pd.DataFrame:
-    df = pd.read_csv(FINAL_DATA_DIR / "analysis_panel.csv")
-    df["date"] = pd.to_datetime(df["date"])
-    df = df.sort_values("date").reset_index(drop=True)
-    return df
+    return load_panel_as_wide(FINAL_DATA_DIR / "analysis_panel.csv")
 
 
 def save_fig(filename: str) -> None:
@@ -261,14 +259,13 @@ def write_notebook() -> None:
             "\n"
             "sys.path.append(str(Path.cwd() / 'code'))\n"
             "from config_paths import FIGURES_DIR, FINAL_DATA_DIR\n"
+            "from panel_format_utils import load_panel_as_wide\n"
             "\n"
             "sns.set_style('whitegrid')\n"
             "sns.set_palette('colorblind')\n"
             "plt.rcParams['font.size'] = 11\n"
             "\n"
-            "df = pd.read_csv(FINAL_DATA_DIR / 'analysis_panel.csv')\n"
-            "df['date'] = pd.to_datetime(df['date'])\n"
-            "df = df.sort_values('date').reset_index(drop=True)\n"
+            "df = load_panel_as_wide(FINAL_DATA_DIR / 'analysis_panel.csv')\n"
             "FIGURES_DIR.mkdir(parents=True, exist_ok=True)\n"
             "\n"
             "print('Shape:', df.shape)\n"

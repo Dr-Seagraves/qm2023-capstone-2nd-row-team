@@ -8,9 +8,10 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from pathlib import Path
 
-# Load the final panel
-df = pd.read_csv('data/final/analysis_panel.csv')
-df['date'] = pd.to_datetime(df['date'])
+from panel_format_utils import load_panel_as_wide
+
+# Load the final panel (supports both long and wide storage formats)
+df = load_panel_as_wide('data/final/analysis_panel.csv')
 
 # Create comprehensive visualization
 fig, axes = plt.subplots(3, 1, figsize=(14, 12))

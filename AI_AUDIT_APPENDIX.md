@@ -63,6 +63,19 @@
  - Human verification:
     - We had AI re-write the code several times because the HTML dashboard was not very readable at first. 
 
+## Milestone 3
+
+## Task: Converting Data to Long-Format
+- Files:
+    - analysis_panel_wide.csv
+    - analysis_panel.csv
+    - Reverification of the files in the code, data, and results folders
+- AI Help:
+    - Prompt: "Can you convert this data into long format? Make sure to fix any issues in other data or graphs this change may cause"
+    - It converted the data into long format and then adjusted other files accordingly
+- Human verification: 
+    - We made sure the data was converted into long format appropriately 
+
 ## 5. Validation and Quality Control
 
 - Re-ran analysis from raw M1 panel output to verify reproducibility.
