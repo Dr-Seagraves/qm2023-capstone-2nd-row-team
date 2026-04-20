@@ -322,7 +322,25 @@ def save_plots(panel_df: pd.DataFrame, did_table: pd.DataFrame, market_df: pd.Da
     plt.savefig(FIGURES_DIR / "m3_treated_vs_control_trends.png", dpi=300, bbox_inches="tight")
     plt.close()
 
-    # Plot 2: DiD coefficients for the two crisis interactions
+    # Plot 2: gap between returns/factors and sentiment trends
+    gap_df = trend.pivot(index="date", columns="group", values="value_z").reset_index()
+    gap_df = gap_df.dropna(subset=["Returns/factors", "Sentiment variables"]).copy()
+    gap_df["gap_returns_minus_sentiment"] = gap_df["Returns/factors"] - gap_df["Sentiment variables"]
+
+    plt.figure(figsize=(12, 6))
+    sns.lineplot(data=gap_df, x="date", y="gap_returns_minus_sentiment", linewidth=2.2, color="#2c7fb8")
+    plt.axhline(0, color="black", linewidth=1)
+    plt.axvline(GFC_START, color="#c0392b", linestyle="--", linewidth=1.8, label="GFC shock")
+    plt.axvline(COVID_START, color="#8e44ad", linestyle="--", linewidth=1.8, label="COVID shock")
+    plt.title("Gap Series: Returns/Factors Minus Sentiment")
+    plt.xlabel("Date")
+    plt.ylabel("Gap in standardized value (z-score)")
+    plt.legend(loc="best")
+    plt.tight_layout()
+    plt.savefig(FIGURES_DIR / "m3_treated_vs_control_gap.png", dpi=300, bbox_inches="tight")
+    plt.close()
+
+    # Plot 3: DiD coefficients for the two crisis interactions
     keep_terms = {"treated_sentiment:post_gfc", "treated_sentiment:post_covid"}
     coef = did_table[did_table["term"].isin(keep_terms)].copy()
     coef["label"] = coef["term"].map(
@@ -344,7 +362,7 @@ def save_plots(panel_df: pd.DataFrame, did_table: pd.DataFrame, market_df: pd.Da
     plt.savefig(FIGURES_DIR / "m3_did_coefficients.png", dpi=300, bbox_inches="tight")
     plt.close()
 
-    # Plot 3: observed vs fitted market return model
+    # Plot 4: observed vs fitted market return model
     plt.figure(figsize=(12, 6))
     plt.plot(market_df["date"], market_df["mkt_ret"], label="Observed mkt_ret", linewidth=1.8)
     plt.plot(market_df["date"], market_df["mkt_ret_fitted"], label="Fitted mkt_ret", linewidth=1.8)
