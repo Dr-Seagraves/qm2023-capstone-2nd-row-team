@@ -108,6 +108,17 @@
 - Human verfication:
     - We looked over the output and regressions to verify, noticed some errors, and either manually changed things or reprompted AI (disclosed in this same section)
 
+## Task: Graphing the Gap in DiD
+
+- Files:
+    - m3_treated_vs_control_gap.png
+    - generate_m3_analyses.py
+- AI help:
+    - We told AI that we wanted another graph showing the gap between the returns and the sentiment variables based on
+      m3_treated_vs_control_trends.png. It drew said graph for us. 
+- Validation:
+    - We looked over the graph, and it looked just like we were invisioning before prompting AI. 
+
 ## 5. Validation and Quality Control
 
 - Re-ran analysis from raw M1 panel output to verify reproducibility.
