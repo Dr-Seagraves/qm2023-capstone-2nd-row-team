@@ -31,7 +31,7 @@
 - `rmw`: coef = -0.2760, p = 0.1289, 95% CI [-0.6324, 0.0803]
 - `cma`: coef = -0.6590***, p = 0.0010, 95% CI [-1.0520, -0.2660]
 
-Interpretation in plain language:
+Interpretation:
 - A positive lagged sentiment coefficient would mean stronger confidence last month is associated with higher return this month.
 - A negative lagged bull-bear spread coefficient would support a contrarian story (too much bullishness predicts softer next-month returns).
 - Factor coefficients capture whether common risk channels still explain returns after sentiment is added.
@@ -40,14 +40,14 @@ Interpretation in plain language:
 - `post_gfc`: coef = -0.5316, p = 0.2243, 95% CI [-1.3891, 0.3258]
 - `post_covid`: coef = 0.0151, p = 0.9175, 95% CI [-0.2712, 0.3015]
 
-Interpretation in plain language:
+Interpretation:
 - The entity FE model asks whether the average standardized level of series shifts after each macro shock, after controlling for each variable's own baseline level.
 
 ### 3) DiD: differential effect on sentiment vs controls
 - `treated_sentiment x post_gfc`: coef = 0.2010, p = 0.5609, 95% CI [-0.4763, 0.8783]
 - `treated_sentiment x post_covid`: coef = -0.5286**, p = 0.0448, 95% CI [-1.0449, -0.0123]
 
-Interpretation in plain language:
+Interpretation:
 - Positive DiD interaction: sentiment series rose more (or fell less) than return/factor controls after that shock.
 - Negative DiD interaction: sentiment series weakened more than controls after that shock.
 
