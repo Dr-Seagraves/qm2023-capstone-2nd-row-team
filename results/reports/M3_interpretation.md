@@ -24,12 +24,8 @@
 
 ## Main economic interpretation
 ### 1) Predictive return model
-- `sentiment_michigan_ics_l1`: coef = 0.0022, p = 0.9223, 95% CI [-0.0414, 0.0457]
-- `bull_bear_spread_l1`: coef = -0.0063, p = 0.7255, 95% CI [-0.0414, 0.0288]
-- `smb`: coef = 0.4568***, p = 0.0002, 95% CI [0.2144, 0.6991]
-- `hml`: coef = 0.3643***, p = 0.0038, 95% CI [0.1179, 0.6107]
-- `rmw`: coef = -0.2760, p = 0.1289, 95% CI [-0.6324, 0.0803]
-- `cma`: coef = -0.6590***, p = 0.0010, 95% CI [-1.0520, -0.2660]
+- `sentiment_michigan_ics_l1`: coef = -0.0067, p = 0.8058, 95% CI [-0.0598, 0.0464]
+- `bull_bear_spread_l1`: coef = 0.0001, p = 0.9952, 95% CI [-0.0395, 0.0398]
 
 Interpretation in plain language:
 - A positive lagged sentiment coefficient would mean stronger confidence last month is associated with higher return this month.
@@ -52,7 +48,7 @@ Interpretation in plain language:
 - Negative DiD interaction: sentiment series weakened more than controls after that shock.
 
 ## Diagnostics
-- Breusch-Pagan p-value: **0.0001**
+- Breusch-Pagan p-value: **0.0124**
 - Max VIF among predictors: **1.58**
 - Residual diagnostics saved as residual-vs-fitted, Q-Q, and histogram plots.
 
@@ -90,6 +86,8 @@ Interpretation:
 - `results/tables/m3_vif_results.csv`
 - `results/tables/m3_robustness_checks.csv`
 - `results/tables/m3_model_comparison_table.csv`
+- `results/tables/m3_model_comparison_table_no_time_fe.csv`
+- `results/tables/m3_model_comparison_table_no_time_fe.md`
 - `results/figures/m3_treated_vs_control_trends.png`
 - `results/figures/m3_did_coefficients.png`
 - `results/figures/m3_market_model_fit.png`

@@ -65,38 +65,50 @@ def coef_table(model) -> pd.DataFrame:
     return out
 
 
-def build_market_model(wide_df: pd.DataFrame):
-    """Estimate monthly return model with calendar-month fixed effects."""
+def build_market_model(
+    wide_df: pd.DataFrame,
+    regressors: list[str] | None = None,
+    include_month_fe: bool = True,
+):
+    """Estimate a monthly return model with optional calendar-month fixed effects."""
     df = wide_df.copy()
     df = df.sort_values("date").reset_index(drop=True)
     df["sentiment_michigan_ics_l1"] = df["sentiment_michigan_ics"].shift(1)
     df["bull_bear_spread_l1"] = df["bull_bear_spread"].shift(1)
+    df["smb_l1"] = df["smb"].shift(1)
+    df["hml_l1"] = df["hml"].shift(1)
+    df["rmw_l1"] = df["rmw"].shift(1)
+    df["cma_l1"] = df["cma"].shift(1)
     df["month_of_year"] = df["date"].dt.month
 
-    model_df = df.dropna(
-        subset=[
-            "mkt_ret",
+    if regressors is None:
+        regressors = [
             "sentiment_michigan_ics_l1",
             "bull_bear_spread_l1",
             "smb",
             "hml",
             "rmw",
             "cma",
+        ]
+
+    model_df = df.dropna(
+        subset=[
+            "mkt_ret",
+            *regressors,
             "month_of_year",
         ]
     ).copy()
 
-    formula = (
-        "mkt_ret ~ sentiment_michigan_ics_l1 + bull_bear_spread_l1 + "
-        "smb + hml + rmw + cma + C(month_of_year)"
-    )
+    formula = "mkt_ret ~ " + " + ".join(regressors)
+    if include_month_fe:
+        formula += " + C(month_of_year)"
     model = smf.ols(formula=formula, data=model_df).fit(cov_type="HC1")
     model_df["mkt_ret_fitted"] = model.fittedvalues
 
     return model, model_df
 
 
-def build_panel_models(long_df: pd.DataFrame):
+def build_panel_models(long_df: pd.DataFrame, include_time_fe: bool = True):
     """Estimate entity FE and DiD models on standardized long-form data."""
     sentiment_vars = {
         "sentiment_michigan_ics",
@@ -117,16 +129,17 @@ def build_panel_models(long_df: pd.DataFrame):
     df["value_z"] = df["value_z"].replace([np.inf, -np.inf], np.nan)
     df = df.dropna(subset=["value_z"]).copy()
 
-    entity_fe_formula = "value_z ~ treated_sentiment + post_gfc + post_covid + C(variable) + C(date)"
+    entity_fe_formula = "value_z ~ treated_sentiment + post_gfc + post_covid + C(variable)"
+    if include_time_fe:
+        entity_fe_formula += " + C(date)"
     entity_fe = smf.ols(formula=entity_fe_formula, data=df).fit(
         cov_type="cluster",
         cov_kwds={"groups": df["variable"]},
     )
 
-    did_formula = (
-        "value_z ~ treated_sentiment:post_gfc + treated_sentiment:post_covid + "
-        "C(variable) + C(date)"
-    )
+    did_formula = "value_z ~ treated_sentiment:post_gfc + treated_sentiment:post_covid + C(variable)"
+    if include_time_fe:
+        did_formula += " + C(date)"
     did = smf.ols(formula=did_formula, data=df).fit(
         cov_type="cluster",
         cov_kwds={"groups": df["variable"]},
@@ -269,37 +282,130 @@ def save_diagnostic_plots(market_model, market_df: pd.DataFrame) -> None:
     plt.close()
 
 
-def build_comparison_table(entity_table: pd.DataFrame, did_table: pd.DataFrame) -> pd.DataFrame:
-    """Build publication-style side-by-side comparison table for Model A and Model B."""
-    a_terms = ["treated_sentiment", "post_gfc", "post_covid"]
-    b_terms = ["treated_sentiment:post_gfc", "treated_sentiment:post_covid"]
-    rows = []
-
-    for term in sorted(set(a_terms + b_terms)):
-        a = entity_table.loc[entity_table["term"] == term]
-        b = did_table.loc[did_table["term"] == term]
-        if not a.empty:
-            a_row = a.iloc[0]
-            a_cell = f"{a_row['coef']:.4f}{pstar(a_row['p_value'])} ({a_row['std_err']:.4f})"
-        else:
-            a_cell = ""
-        if not b.empty:
-            b_row = b.iloc[0]
-            b_cell = f"{b_row['coef']:.4f}{pstar(b_row['p_value'])} ({b_row['std_err']:.4f})"
-        else:
-            b_cell = ""
-        rows.append({"term": term, "Model_A_TWFE": a_cell, "Model_B_DiD": b_cell})
-
-    rows.append(
+def build_comparison_table(
+    market_specs: list[dict],
+    entity_table: pd.DataFrame,
+    did_table: pd.DataFrame,
+    entity_fe_model,
+    did_model,
+    entity_label: str = "(9) Entity TWFE",
+    did_label: str = "(10) DiD",
+    entity_time_fe: bool = True,
+    did_time_fe: bool = True,
+) -> tuple[pd.DataFrame, str]:
+    """Build publication-style regression tables with one column per model."""
+    row_order = [
+        "sentiment_michigan_ics_l1",
+        "bull_bear_spread_l1",
+        "smb",
+        "hml",
+        "rmw",
+        "cma",
+        "treated_sentiment",
+        "post_gfc",
+        "post_covid",
+        "treated_sentiment:post_gfc",
+        "treated_sentiment:post_covid",
+    ]
+    row_labels = {
+        "sentiment_michigan_ics_l1": "Lagged Michigan sentiment",
+        "bull_bear_spread_l1": "Lagged AAII bull-bear spread",
+        "smb": "SMB",
+        "hml": "HML",
+        "rmw": "RMW",
+        "cma": "CMA",
+        "treated_sentiment": "Sentiment group",
+        "post_gfc": "Post-2008 shock",
+        "post_covid": "Post-COVID shock",
+        "treated_sentiment:post_gfc": "Sentiment group x Post-2008",
+        "treated_sentiment:post_covid": "Sentiment group x Post-COVID",
+    }
+    display_term_candidates = {
+        "sentiment_michigan_ics_l1": ["sentiment_michigan_ics_l1"],
+        "bull_bear_spread_l1": ["bull_bear_spread_l1"],
+        "smb": ["smb", "smb_l1"],
+        "hml": ["hml", "hml_l1"],
+        "rmw": ["rmw", "rmw_l1"],
+        "cma": ["cma", "cma_l1"],
+        "treated_sentiment": ["treated_sentiment"],
+        "post_gfc": ["post_gfc"],
+        "post_covid": ["post_covid"],
+        "treated_sentiment:post_gfc": ["treated_sentiment:post_gfc"],
+        "treated_sentiment:post_covid": ["treated_sentiment:post_covid"],
+    }
+    model_specs = list(market_specs) + [
         {
-            "term": "Notes",
-            "Model_A_TWFE": "Entity FE=Yes; Time FE=Yes; Clustered SE by variable=Yes",
-            "Model_B_DiD": "Entity FE=Yes; Time FE=Yes; Clustered SE by variable=Yes",
-        }
-    )
-    rows.append({"term": "Significance", "Model_A_TWFE": "*** p<0.01, ** p<0.05, * p<0.10", "Model_B_DiD": "*** p<0.01, ** p<0.05, * p<0.10"})
+            "label": entity_label,
+            "table": entity_table,
+            "model": entity_fe_model,
+            "month_fe": "No",
+            "entity_fe": "Yes",
+            "time_fe": "Yes" if entity_time_fe else "No",
+            "se_type": "Clustered by variable",
+            "factor_timing": "NA",
+        },
+        {
+            "label": did_label,
+            "table": did_table,
+            "model": did_model,
+            "month_fe": "No",
+            "entity_fe": "Yes",
+            "time_fe": "Yes" if did_time_fe else "No",
+            "se_type": "Clustered by variable",
+            "factor_timing": "NA",
+        },
+    ]
 
-    return pd.DataFrame(rows)
+    def format_cell(table: pd.DataFrame, term: str) -> str:
+        match = table.loc[table["term"] == term]
+        if match.empty:
+            return ""
+        row = match.iloc[0]
+        return f"{row['coef']:.3f}{pstar(row['p_value'])}\n({row['std_err']:.3f})"
+
+    rows = []
+    for term in row_order:
+        row = {"Term": row_labels[term]}
+        has_value = False
+        for spec in model_specs:
+            candidates = display_term_candidates[term]
+            mapped_term = next((candidate for candidate in candidates if candidate in set(spec["table"]["term"])), None)
+            cell = format_cell(spec["table"], mapped_term) if mapped_term else ""
+            row[spec["label"]] = cell
+            has_value = has_value or bool(cell)
+        if has_value:
+            rows.append(row)
+
+    summary_rows = [
+        ("Month-of-year FE", lambda spec: spec["month_fe"]),
+        ("Entity FE", lambda spec: spec["entity_fe"]),
+        ("Time FE", lambda spec: spec["time_fe"]),
+        ("Factor timing", lambda spec: spec["factor_timing"]),
+        ("SE type", lambda spec: spec["se_type"]),
+        ("Observations", lambda spec: f"{int(spec['model'].nobs)}"),
+        ("R-squared", lambda spec: f"{spec['model'].rsquared:.3f}"),
+        ("Notes", lambda spec: "Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01."),
+    ]
+    for label, value_getter in summary_rows:
+        row = {"Term": label}
+        for spec in model_specs:
+            row[spec["label"]] = value_getter(spec)
+        rows.append(row)
+
+    comparison_table = pd.DataFrame(rows)
+
+    header = ["Term", *[spec["label"] for spec in model_specs]]
+    markdown_lines = [
+        "# M3 Publication-Style Regression Table",
+        "",
+        "| " + " | ".join(header) + " |",
+        "| " + " | ".join(["---"] * len(header)) + " |",
+    ]
+    for _, row in comparison_table.iterrows():
+        row_values = [str(row[column]).replace("\n", "<br>") for column in header]
+        markdown_lines.append("| " + " | ".join(row_values) + " |")
+
+    return comparison_table, "\n".join(markdown_lines)
 
 
 def save_plots(panel_df: pd.DataFrame, did_table: pd.DataFrame, market_df: pd.DataFrame) -> None:
@@ -519,6 +625,8 @@ def write_report(
             "- `results/tables/m3_vif_results.csv`",
             "- `results/tables/m3_robustness_checks.csv`",
             "- `results/tables/m3_model_comparison_table.csv`",
+            "- `results/tables/m3_model_comparison_table_no_time_fe.csv`",
+            "- `results/tables/m3_model_comparison_table_no_time_fe.md`",
             "- `results/figures/m3_treated_vs_control_trends.png`",
             "- `results/figures/m3_did_coefficients.png`",
             "- `results/figures/m3_market_model_fit.png`",
@@ -540,15 +648,121 @@ def main() -> None:
     wide_df = load_panel_as_wide(panel_path)
     long_df = ensure_long_panel(panel_path)
 
-    market_model, market_model_df = build_market_model(wide_df)
-    entity_fe_model, did_model, panel_df = build_panel_models(long_df)
+    market_spec_definitions = [
+        {
+            "label": "(1) Michigan only",
+            "regressors": ["sentiment_michigan_ics_l1"],
+            "factor_timing": "None",
+        },
+        {
+            "label": "(2) AAII only",
+            "regressors": ["bull_bear_spread_l1"],
+            "factor_timing": "None",
+        },
+        {
+            "label": "(3) Both sentiment",
+            "regressors": ["sentiment_michigan_ics_l1", "bull_bear_spread_l1"],
+            "factor_timing": "None",
+        },
+        {
+            "label": "(4) + SMB",
+            "regressors": ["sentiment_michigan_ics_l1", "bull_bear_spread_l1", "smb_l1"],
+            "factor_timing": "Lagged",
+        },
+        {
+            "label": "(5) + HML",
+            "regressors": ["sentiment_michigan_ics_l1", "bull_bear_spread_l1", "smb_l1", "hml_l1"],
+            "factor_timing": "Lagged",
+        },
+        {
+            "label": "(6) + RMW",
+            "regressors": ["sentiment_michigan_ics_l1", "bull_bear_spread_l1", "smb_l1", "hml_l1", "rmw_l1"],
+            "factor_timing": "Lagged",
+        },
+        {
+            "label": "(7) + CMA",
+            "regressors": ["sentiment_michigan_ics_l1", "bull_bear_spread_l1", "smb_l1", "hml_l1", "rmw_l1", "cma_l1"],
+            "factor_timing": "Lagged",
+        },
+        {
+            "label": "(8) Lagged factors",
+            "regressors": ["sentiment_michigan_ics_l1", "bull_bear_spread_l1", "smb_l1", "hml_l1", "rmw_l1", "cma_l1"],
+            "factor_timing": "Lagged",
+        },
+    ]
 
-    market_table = coef_table(market_model)
+    market_specs = []
+    market_model = None
+    market_model_df = None
+    market_table = None
+    for spec in market_spec_definitions:
+        model, model_df = build_market_model(wide_df, regressors=spec["regressors"])
+        table = coef_table(model)
+        market_specs.append(
+            {
+                "label": spec["label"],
+                "table": table,
+                "model": model,
+                "month_fe": "Yes",
+                "entity_fe": "No",
+                "time_fe": "No",
+                "se_type": "Robust (HC1)",
+                "factor_timing": spec["factor_timing"],
+            }
+        )
+        if spec["label"] == "(7) + CMA":
+            market_model = model
+            market_model_df = model_df
+            market_table = table
+
+    if market_model is None or market_model_df is None or market_table is None:
+        raise RuntimeError("Failed to construct the full market model specification.")
+
+    market_specs_no_time_fe = []
+    for spec in market_spec_definitions:
+        model, _ = build_market_model(wide_df, regressors=spec["regressors"], include_month_fe=False)
+        market_specs_no_time_fe.append(
+            {
+                "label": spec["label"],
+                "table": coef_table(model),
+                "model": model,
+                "month_fe": "No",
+                "entity_fe": "No",
+                "time_fe": "No",
+                "se_type": "Robust (HC1)",
+                "factor_timing": spec["factor_timing"],
+            }
+        )
+
+    entity_fe_model, did_model, panel_df = build_panel_models(long_df)
+    entity_model_no_time_fe, did_model_no_time_fe, _ = build_panel_models(long_df, include_time_fe=False)
+
     entity_table = coef_table(entity_fe_model)
     did_table = coef_table(did_model)
+    entity_table_no_time_fe = coef_table(entity_model_no_time_fe)
+    did_table_no_time_fe = coef_table(did_model_no_time_fe)
     bp_table, vif_table = run_diagnostics(market_model, market_model_df)
     robustness_table = run_robustness_checks(wide_df, panel_df, did_model)
-    comparison_table = build_comparison_table(entity_table, did_table)
+    comparison_table, comparison_table_markdown = build_comparison_table(
+        market_specs=market_specs,
+        entity_table=entity_table,
+        did_table=did_table,
+        entity_fe_model=entity_fe_model,
+        did_model=did_model,
+        entity_time_fe=True,
+        did_time_fe=True,
+    )
+    comparison_table_no_time_fe, comparison_table_no_time_fe_markdown = build_comparison_table(
+        market_specs=market_specs_no_time_fe,
+        entity_table=entity_table_no_time_fe,
+        did_table=did_table_no_time_fe,
+        entity_fe_model=entity_model_no_time_fe,
+        did_model=did_model_no_time_fe,
+        entity_label="(9) Entity FE, no time FE",
+        did_label="(10) DiD, no time FE",
+        entity_time_fe=False,
+        did_time_fe=False,
+    )
 
     market_table.to_csv(TABLES_DIR / "m3_market_fe_results.csv", index=False)
     entity_table.to_csv(TABLES_DIR / "m3_entity_fe_results.csv", index=False)
@@ -557,6 +771,9 @@ def main() -> None:
     vif_table.to_csv(TABLES_DIR / "m3_vif_results.csv", index=False)
     robustness_table.to_csv(TABLES_DIR / "m3_robustness_checks.csv", index=False)
     comparison_table.to_csv(TABLES_DIR / "m3_model_comparison_table.csv", index=False)
+    (TABLES_DIR / "m3_model_comparison_table.md").write_text(comparison_table_markdown, encoding="utf-8")
+    comparison_table_no_time_fe.to_csv(TABLES_DIR / "m3_model_comparison_table_no_time_fe.csv", index=False)
+    (TABLES_DIR / "m3_model_comparison_table_no_time_fe.md").write_text(comparison_table_no_time_fe_markdown, encoding="utf-8")
 
     save_plots(panel_df=panel_df, did_table=did_table, market_df=market_model_df)
     save_diagnostic_plots(market_model, market_model_df)
@@ -580,6 +797,9 @@ def main() -> None:
     print(f"- Tables: {TABLES_DIR / 'm3_vif_results.csv'}")
     print(f"- Tables: {TABLES_DIR / 'm3_robustness_checks.csv'}")
     print(f"- Tables: {TABLES_DIR / 'm3_model_comparison_table.csv'}")
+    print(f"- Tables: {TABLES_DIR / 'm3_model_comparison_table.md'}")
+    print(f"- Tables: {TABLES_DIR / 'm3_model_comparison_table_no_time_fe.csv'}")
+    print(f"- Tables: {TABLES_DIR / 'm3_model_comparison_table_no_time_fe.md'}")
     print(f"- Figure: {FIGURES_DIR / 'm3_treated_vs_control_trends.png'}")
     print(f"- Figure: {FIGURES_DIR / 'm3_did_coefficients.png'}")
     print(f"- Figure: {FIGURES_DIR / 'm3_market_model_fit.png'}")
