@@ -1,0 +1,5 @@
+check,metric,baseline_value,check_value,aux_value,interpretation
+alternative_lags,lagged sentiment coefficient,0.0277418964905059,0.007771454774514676,0.00045944999914759513,"If the sign is stable across lags, the sentiment result is not driven by one arbitrary lag choice."
+exclude_covid_years,lagged sentiment coefficient,0.0277418964905059,0.01178393676835301,49203.0,"If the coefficient stays similar when 2020-2021 are removed, the result is not only a pandemic artifact."
+size_subsample_split,small-vs-large sentiment coefficient,0.08026363387143669,-0.049731651599224456,,Different coefficients across firm-size subsamples indicate heterogeneity in sentiment sensitivity.
+placebo_pre_period,small_firm x placebo_post,0.2114625357411584,1.7717803788210662,0.061947816010836876,A weak placebo interaction supports the claim that the crisis DiD is not just capturing generic pre-trends.

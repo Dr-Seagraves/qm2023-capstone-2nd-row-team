@@ -1,0 +1,18 @@
+Term,(1) OLS full period,(2) OLS COVID only,(3) FE TWFE,(4) DiD TWFE
+Lagged Michigan sentiment,0.028<br>(0.036),0.088<br>(0.182),,
+Lagged sentiment x small-firm exposure,,,0.211**<br>(0.104),0.200*<br>(0.103)
+Lagged sentiment x small-firm x post-GFC,,,,0.049<br>(0.044)
+Lagged sentiment x small-firm x post-COVID,,,,0.054<br>(0.077)
+Log assets,-0.798***<br>(0.266),-1.211<br>(0.952),-1.766<br>(2.385),-1.794<br>(2.362)
+Leverage,-0.012<br>(0.009),-0.020<br>(0.017),-0.005<br>(0.007),-0.006<br>(0.008)
+Profitability,0.002<br>(0.004),0.022<br>(0.020),0.022<br>(0.018),0.022<br>(0.018)
+Capex intensity,1.520<br>(1.720),28.331<br>(33.780),16.118<br>(15.063),16.197<br>(15.150)
+Cash ratio,2.291<br>(3.150),21.090<br>(20.889),7.985<br>(5.538),8.348<br>(5.793)
+R&D intensity,-0.002<br>(0.007),0.010<br>(0.011),0.033<br>(0.031),0.033<br>(0.031)
+Firm FE,No,No,Yes,Yes
+Time FE,No,No,Yes,Yes
+Industry FE,Yes,Yes,No,No
+Clustered SE,Clustered by firm,Clustered by firm,Clustered by firm,Clustered by firm
+Observations,52337,3134,52337,52337
+R-squared,0.001,0.002,-0.011,-0.013
+Notes,Direct sentiment coefficient,Pandemic subsample,Sentiment x small-firm exposure,Shock interactions with sentiment exposure

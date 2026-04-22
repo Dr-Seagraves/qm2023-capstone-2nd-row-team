@@ -76,7 +76,7 @@
 - Human verification: 
     - We made sure the data was converted into long format appropriately 
 
-## Task: FE and DiD
+## Task: FE and DiD version 1
 
 - Files:
     - README.md
@@ -106,7 +106,7 @@
     - Added deliverable-name wrapper script: capstone_models.py.
     - Updated README run instructions and output list in README.md.
 - Human verfication:
-    - We looked over the output and regressions to verify, noticed some errors, and either manually changed things or reprompted AI (disclosed in this same section)
+    - We looked over the output and regressions to verify, noticed some errors, and either manually changed things or reprompted AI (disclosed in this same section). It came to our attention that the regressions did not work on the specific type of data we had, so we decided to redo the milestone with new data.
 
 ## Task: Graphing the Gap in DiD
 
@@ -118,6 +118,42 @@
       m3_treated_vs_control_trends.png. It drew said graph for us. 
 - Validation:
     - We looked over the graph, and it looked just like we were invisioning before prompting AI. 
+
+## Task: New FE, OLS, and DiD Regressions with New Data Pipeline
+
+- Files
+    - M3v2_firm_panel.csv
+    - m3v2_coefficient_comparison.png
+    - m3v2_did_event_study.png
+    - m3v2_fe_did_coefficients.png
+    - m3v2_group_trends.png
+    - m3v2_interaction_elasicity.png
+    - m3v2_model_specifications.png
+    - m3v2_ols_fitted.png
+    - m3v2_residuals_hist.png
+    - m3v2_residuals_qq.png
+    - m3v2_residuals_vs_fitted.png
+    - README.md
+    - M3v2_interpretations.md
+    - All tables amd code with "m3v2_" in it
+    - M3v2_interactive_dashboard.html
+    - M3V2_DASHBOARD_README.md
+- AI help:
+    - Prompt: "We want to redo M3 with new data. The old data was not panel data, so we could not run fixed effects and difference in difference regressions. Please do fixed effects and then difference in difference regressions for the lagged sentiment (x variable) and company returns from us-comp.csv. Feel free to control for various different factors (such as firm size, industry, etc.). but also do just the sentiment and firm returns. Also do an OLS regression for the entire period and also for just COVID. Make sure all requirements (except for the AI audit which I will hand write) in the README M3.pdf and rubric M3.pdf are met. Feel free to install whatever package is needed to read the pdfs. Since a previous version of M3 was attempted, differentiate the names of the new files and figures with M3v2 in the title so I can go back and delete old files from the outdated M3."
+    - Prompt: "Can you create an investor-ready dashboard that summarizes M3v2. Also, can you add more M3v2 figures that show DiD and FE regressions?"
+    - Propmt: "Can you expand on the economic interpreation and explain more in this file?"
+- Human verification:
+    - We looked over all the files and reprompted some as needed. We reformatted several things as well and began working on interpretation. 
+
+## Task: Updating Data Dictionary
+
+- Files:
+    - data_dictionary.md
+    - m3v2_firm_panel_data_dictionary.md
+- AI help
+    - Prompt: "Can you expand on the economic interpreation and explain more in this file?"
+- Human verification:
+    - We looked over the data dictionary to verify it
 
 ## 5. Validation and Quality Control
 

@@ -66,50 +66,52 @@ Below is the consolidated set of null hypotheses implied by our research questio
 
 These H0 statements can be directly paired with alternative hypotheses in M3 regression/event-study testing and reported with p-values/confidence intervals.
 
-## M3 Regression and Shock Analysis Deliverables
 
-This repository now includes a full M3 pipeline with:
+## M3v2 Firm-Panel Regression Deliverables
 
-- Fixed-effects style return modeling (calendar-month fixed effects for `mkt_ret`)
-- Entity fixed effects on the long-form panel (`C(variable)`)
-- Difference-in-differences tests for:
-	- 2008 Financial Crisis shock (post-2008-09)
-	- COVID shock (post-2020-03)
-- Publication-ready plots and regression tables
-- An interpretation memo in plain economic language
+The repository also includes a newer M3v2 pipeline built from `data/raw/us-comp.csv` so the analysis runs on a real firm-year panel.
 
-### Run M3 pipeline
+- Fixed-effects panel modeling with firm and year effects
+- Difference-in-differences specifications with small-firm exposure and shock interactions
+- Pooled OLS for the full period and for the COVID subsample
+- Diagnostics, robustness checks, and publication-style comparison tables
+- **NEW:** Investor-ready interactive dashboard with coefficient explorer and visual evidence
+
+### Run M3v2 pipeline
 
 ```bash
 /home/codespace/.python/current/bin/python code/capstone_models.py
 ```
 
-### M3 outputs
+### Generate interactive dashboard
 
-- Report memo (root): `M3_interpretation.md`
-- Report memo (reports folder): `results/reports/M3_interpretation.md`
+```bash
+/home/codespace/.python/current/bin/python code/create_m3v2_interactive_dashboard.py
+```
+
+### M3v2 outputs
+
+- **Interactive Dashboard:** `results/reports/M3v2_interactive_dashboard.html` (open in browser for interactive exploration)
+- Report memo (root): `M3v2_interpretation.md`
+- Report memo (reports folder): `results/reports/M3v2_interpretation.md`
 - Tables:
-	- `results/tables/m3_market_fe_results.csv`
-	- `results/tables/m3_entity_fe_results.csv`
-	- `results/tables/m3_did_results.csv`
-	- `results/tables/m3_bp_test_results.csv`
-	- `results/tables/m3_vif_results.csv`
-	- `results/tables/m3_robustness_checks.csv`
-	- `results/tables/m3_model_comparison_table.csv`
+	- `results/tables/m3v2_ols_full_period_results.csv`
+	- `results/tables/m3v2_ols_covid_only_results.csv`
+	- `results/tables/m3v2_fe_results.csv`
+	- `results/tables/m3v2_did_results.csv`
+	- `results/tables/m3v2_bp_test_results.csv`
+	- `results/tables/m3v2_vif_results.csv`
+	- `results/tables/m3v2_robustness_checks.csv`
+	- `results/tables/m3v2_model_comparison_table.csv`
+	- `results/tables/m3v2_model_comparison_table.md`
 - Figures:
-	- `results/figures/m3_treated_vs_control_trends.png`
-	- `results/figures/m3_did_coefficients.png`
-	- `results/figures/m3_market_model_fit.png`
-	- `results/figures/m3_residuals_vs_fitted.png`
-	- `results/figures/m3_residuals_qq.png`
-	- `results/figures/m3_residuals_hist.png`
-
-### M3 summary highlights
-
-- Lagged sentiment terms are not statistically significant in the monthly return model after factor controls.
-- Factor channels remain economically important (SMB and HML positive, CMA negative).
-- DiD results show sentiment variables responded differently from control series after major shocks:
-	- Post-2008 differential effect is positive.
-	- Post-COVID differential effect is negative and larger in magnitude.
-
-Note: because this dataset is a single aggregate market time series plus covariates, classic multi-entity firm-level fixed effects on returns are not directly available. The M3 entity FE and DiD models are therefore estimated on the stacked long panel where each variable is treated as an entity.
+	- `results/figures/m3v2_group_trends.png` — Long-run trends for small vs large firms
+	- `results/figures/m3v2_did_event_study.png` — **NEW!** Event study plots around GFC (2008) and COVID (2020) shocks
+	- `results/figures/m3v2_ols_fitted_scatter.png` — Actual vs fitted values for OLS model
+	- `results/figures/m3v2_residuals_vs_fitted.png` — Residual spread across fitted values
+	- `results/figures/m3v2_residuals_qq.png` — Q-Q plot of OLS residuals
+	- `results/figures/m3v2_residuals_hist.png` — Residual distribution check
+	- `results/figures/m3v2_fe_did_coefficients.png` — FE and DiD coefficient estimates with CIs
+	- `results/figures/m3v2_coefficient_comparison.png` — **NEW!** Tornado plot of coefficients across specifications
+	- `results/figures/m3v2_model_specifications.png` — **NEW!** R-squared comparison and FE indicators
+	- `results/figures/m3v2_interaction_elasticity.png` — **NEW!** Sentiment elasticity by firm size (FE model)
