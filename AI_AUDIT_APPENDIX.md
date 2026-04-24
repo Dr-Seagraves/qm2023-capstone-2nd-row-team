@@ -155,6 +155,26 @@
 - Human verification:
     - We looked over the data dictionary to verify it
 
+## Task: Adding Variables to the Regressions, Creating Dashboards
+
+- Files:
+    - m3v2_firm_panel.csv
+    - results/tables/m3v2_company_model_comparison_table.csv
+    - results/tables/m3v2_company_model_comparison_table.md
+    - results/figures/m3v2_company_regression_dashboard.png
+    - results/reports/M3v2_interpretation.md
+    - M3v2_interpretation.md
+    - code/generate_m3v2_analysis.py
+    - code/create_m3v2_interactive_dashboard.py
+    - M3V2_DASHBOARD_README.md
+- AI help:
+    - Prompt: "Can you create a publication-ready comparison table just like this (in how it incrementally adds more variables to the regression) for M3v2 and the company data. Start with just the company returns and the sentiment. Then add in firm size as a variable. Then add in industry type, total debt, net sales, R&D intensity, stock price, leverage, and any other variables you feel would explain or control for the relationship. Do these variables in the order that makes the most statistical and economic sense. Also create one .png dashboard that graphs each of the regressions with some explanation. Make sure all files for M3v2 are updated accordingly."
+    - Prompt: "The png dashboard is not showing up in the html dashboard. Keep a copy of the png in the reults folder, but make the png consistent with the rest of the html"
+    - AI updated the interactive dashboard for M3v2, created a stepwise M3v2 company-controls regression ladder, and regenerated the outputs around it. 
+- Human verification:
+    - I looked over the files, and noticed that some of them were not working. I reworked them, specifically the dashboard. 
+
+
 ## 5. Validation and Quality Control
 
 - Re-ran analysis from raw M1 panel output to verify reproducibility.

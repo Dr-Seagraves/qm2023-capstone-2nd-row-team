@@ -13,6 +13,7 @@ Output:
 
 from __future__ import annotations
 
+import base64
 from pathlib import Path
 
 import importlib
@@ -27,6 +28,12 @@ make_subplots = importlib.import_module("plotly.subplots").make_subplots
 DASHBOARD_PATH = REPORTS_DIR / "M3v2_interactive_dashboard.html"
 
 
+def encode_image_as_data_uri(image_path: Path) -> str:
+    """Return a PNG image as a base64 data URI for reliable HTML embedding."""
+    encoded = base64.b64encode(image_path.read_bytes()).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
 def load_results() -> dict:
     """Load all M3v2 results tables."""
     results = {}
@@ -37,6 +44,7 @@ def load_results() -> dict:
     results["fe"] = pd.read_csv(TABLES_DIR / "m3v2_fe_results.csv")
     results["did"] = pd.read_csv(TABLES_DIR / "m3v2_did_results.csv")
     results["comparison"] = pd.read_csv(TABLES_DIR / "m3v2_model_comparison_table.csv")
+    results["company_comparison"] = pd.read_csv(TABLES_DIR / "m3v2_company_model_comparison_table.csv")
     results["robustness"] = pd.read_csv(TABLES_DIR / "m3v2_robustness_checks.csv")
     results["bp_test"] = pd.read_csv(TABLES_DIR / "m3v2_bp_test_results.csv")
     results["vif"] = pd.read_csv(TABLES_DIR / "m3v2_vif_results.csv")
@@ -157,6 +165,36 @@ def create_regression_comparison_table() -> tuple[str, go.Figure]:
     )
     
     return html_table, fig
+
+
+def create_company_controls_section() -> str:
+    """Create HTML for the stepwise company-controls ladder."""
+    results = load_results()
+    company = results["company_comparison"]
+    html_table = company.fillna("").to_html(classes="comparison-table", border=0, escape=False, index=False)
+    dashboard_image = encode_image_as_data_uri(FIGURES_DIR / "m3v2_company_regression_dashboard.png")
+
+    return f"""
+    <div class="section">
+        <h2>Company Controls Ladder</h2>
+        <div class="info-box">
+            <strong>Why this table matters:</strong> It keeps the same firm-year sample across columns and adds
+            controls in an economically sensible order: size, industry, capital structure, sales scale,
+            profitability/liquidity, investment intensity, and market valuation.
+        </div>
+        <div class="figure-section">
+            <h3>Stepwise PNG Dashboard</h3>
+            <p style="color: #7f8c8d; margin-bottom: 15px;">
+                The static dashboard below summarizes the sentiment coefficient and model fit as controls accumulate.
+            </p>
+            <img src="{dashboard_image}" alt="M3v2 company regression dashboard" style="width: 100%; border-radius: 8px; border: 1px solid #ecf0f1; display: block;" />
+        </div>
+        <div class="figure-section">
+            <h3>Publication-Style Table</h3>
+            {html_table}
+        </div>
+    </div>
+    """
 
 
 def create_coefficient_explorer() -> go.Figure:
@@ -564,6 +602,8 @@ def create_html_dashboard(results_dict: dict, figs_dict: dict) -> str:
         </div>
     </div>
     """
+
+    html_content += create_company_controls_section()
     
     # Coefficient explorer
     coef_fig = create_coefficient_explorer()
@@ -619,6 +659,7 @@ def create_html_dashboard(results_dict: dict, figs_dict: dict) -> str:
                 <li><code>m3v2_interaction_elasticity.png</code> - Sentiment elasticity by firm size</li>
                 <li><code>m3v2_group_trends.png</code> - Long-run trends for small vs large firms</li>
                 <li><code>m3v2_fe_did_coefficients.png</code> - FE and DiD coefficient estimates with CIs</li>
+                <li><code>m3v2_company_regression_dashboard.png</code> - Stepwise company-controls dashboard</li>
             </ul>
         </div>
     </div>
@@ -634,7 +675,7 @@ def create_html_dashboard(results_dict: dict, figs_dict: dict) -> str:
         </p>
         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9em; color: #2c3e50;">
             <strong>Tables:</strong> m3v2_ols_full_period_results.csv, m3v2_fe_results.csv, m3v2_did_results.csv, etc.<br>
-            <strong>Figures:</strong> m3v2_*.png (10 visualizations)<br>
+            <strong>Figures:</strong> m3v2_*.png (11 visualizations)<br>
             <strong>Data:</strong> m3v2_firm_panel.csv (52,337 firm-year observations)<br>
             <strong>Report:</strong> M3v2_interpretation.md (full technical memo)
         </div>
@@ -649,8 +690,8 @@ def create_html_dashboard(results_dict: dict, figs_dict: dict) -> str:
             <p>
                 <strong>M3v2 Firm-Panel Analysis Dashboard</strong><br>
                 Generated from: panel regression, difference-in-differences estimation, and robustness analysis<br>
-                Dataset: US CompuStat annual firm data (2005–2021) with Michigan consumer sentiment (2005–2021)<br>
-                Sample: 25,665 unique firms, 52,337 firm-year observations
+                Dataset: US Compustat annual firm data (2005–2021) with Michigan consumer sentiment (2005–2021)<br>
+                Sample: 7,295 unique firms, 52,337 firm-year observations
             </p>
         </div>
     </div>

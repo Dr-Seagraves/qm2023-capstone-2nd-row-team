@@ -14,12 +14,15 @@ Expected outputs:
 - results/tables/m3v2_robustness_checks.csv
 - results/tables/m3v2_model_comparison_table.csv
 - results/tables/m3v2_model_comparison_table.md
+- results/tables/m3v2_company_model_comparison_table.csv
+- results/tables/m3v2_company_model_comparison_table.md
 - results/figures/m3v2_group_trends.png
 - results/figures/m3v2_ols_fitted_scatter.png
 - results/figures/m3v2_residuals_vs_fitted.png
 - results/figures/m3v2_residuals_qq.png
 - results/figures/m3v2_residuals_hist.png
 - results/figures/m3v2_fe_did_coefficients.png
+- results/figures/m3v2_company_regression_dashboard.png
 - results/reports/M3v2_interpretation.md
 """
 
@@ -102,12 +105,16 @@ def load_and_prepare_firm_panel() -> pd.DataFrame:
     firm["annual_return"] = safe_divide(firm["prcc_f"] - firm["prcc_f_l1"] + firm["dvpsp_f"].fillna(0), firm["prcc_f_l1"])
 
     firm["log_at"] = np.log(firm["at"].where(firm["at"] > 0))
+    firm["log_dt"] = np.log1p(firm["dt"].where(firm["dt"] >= 0))
+    firm["log_sale"] = np.log1p(firm["sale"].where(firm["sale"] >= 0))
+    firm["log_prcc_f"] = np.log1p(firm["prcc_f"].where(firm["prcc_f"] >= 0))
     firm["leverage"] = safe_divide(firm["dt"], firm["at"])
     firm["profitability"] = safe_divide(firm["ebit"], firm["at"])
     firm["capex_intensity"] = safe_divide(firm["capx"], firm["at"])
     firm["cash_ratio"] = safe_divide(firm["che"], firm["at"])
     firm["rd_intensity"] = safe_divide(firm["xrd"], firm["at"])
     firm["revenue_to_assets"] = safe_divide(firm["sale"], firm["at"])
+    firm["tax_to_assets"] = safe_divide(firm["txt"], firm["at"])
 
     firm["sic2"] = (firm["sic"] // 100).astype("Int64")
     firm["sic2_label"] = firm["sic2"].astype(str).replace("<NA>", "Unknown")
@@ -126,11 +133,16 @@ def load_and_prepare_firm_panel() -> pd.DataFrame:
             "annual_return",
             "sentiment_lag1",
             "log_at",
+            "log_dt",
+            "log_sale",
+            "log_prcc_f",
             "leverage",
             "profitability",
             "capex_intensity",
             "cash_ratio",
             "rd_intensity",
+            "revenue_to_assets",
+            "tax_to_assets",
         ]
     ).copy()
 
@@ -294,6 +306,269 @@ def build_comparison_table(specs: list[dict]) -> tuple[pd.DataFrame, str]:
     for _, row in comparison.iterrows():
         md_lines.append("| " + " | ".join(str(row[col]) for col in header) + " |")
     return comparison, "\n".join(md_lines)
+
+
+def build_company_comparison_table(specs: list[dict]) -> tuple[pd.DataFrame, str]:
+    """Create a publication-style stepwise controls table for the firm-panel models."""
+    row_order = [
+        "sentiment_lag1",
+        "log_at",
+        "log_dt",
+        "leverage",
+        "log_sale",
+        "profitability",
+        "cash_ratio",
+        "capex_intensity",
+        "rd_intensity",
+        "log_prcc_f",
+        "revenue_to_assets",
+        "tax_to_assets",
+    ]
+    row_labels = {
+        "sentiment_lag1": "Lagged Michigan sentiment",
+        "log_at": "Firm size (log assets)",
+        "log_dt": "Total debt (log 1 + debt)",
+        "leverage": "Leverage",
+        "log_sale": "Net sales (log 1 + sales)",
+        "profitability": "Profitability",
+        "cash_ratio": "Cash ratio",
+        "capex_intensity": "Capex intensity",
+        "rd_intensity": "R&D intensity",
+        "log_prcc_f": "Stock price (log 1 + price)",
+        "revenue_to_assets": "Revenue-to-assets",
+        "tax_to_assets": "Taxes-to-assets",
+    }
+
+    def format_cell(table: pd.DataFrame, term: str) -> str:
+        match = table.loc[table["term"] == term]
+        if match.empty:
+            return ""
+        row = match.iloc[0]
+        return f"{row['coef']:.3f}{pstar(float(row['p_value']))}<br>({row['std_err']:.3f})"
+
+    rows = []
+    for term in row_order:
+        row = {"Term": row_labels[term]}
+        has_value = False
+        for spec in specs:
+            cell = format_cell(spec["table"], term)
+            row[spec["label"]] = cell
+            has_value = has_value or bool(cell)
+        if has_value:
+            rows.append(row)
+
+    summary_rows = [
+        ("Industry FE", lambda spec: spec["industry_fe"]),
+        ("Clustered SE", lambda spec: spec["se_type"]),
+        ("Observations", lambda spec: f"{int(spec['model'].nobs)}"),
+        ("R-squared", lambda spec: spec["rsquared"]),
+        ("Controls added", lambda spec: spec["notes"]),
+    ]
+    for label, getter in summary_rows:
+        row = {"Term": label}
+        for spec in specs:
+            row[spec["label"]] = getter(spec)
+        rows.append(row)
+
+    comparison = pd.DataFrame(rows)
+    header = ["Term", *[spec["label"] for spec in specs]]
+    md_lines = [
+        "# M3v2 Company Controls Regression Table",
+        "",
+        "| " + " | ".join(header) + " |",
+        "| " + " | ".join(["---"] * len(header)) + " |",
+    ]
+    for _, row in comparison.iterrows():
+        md_lines.append("| " + " | ".join(str(row[col]) for col in header) + " |")
+    return comparison, "\n".join(md_lines)
+
+
+def fit_company_control_models(df: pd.DataFrame) -> tuple[list[dict], pd.DataFrame]:
+    """Estimate a stepwise regression ladder for the company control analysis."""
+    sample_cols = [
+        "annual_return",
+        "sentiment_lag1",
+        "log_at",
+        "log_dt",
+        "leverage",
+        "log_sale",
+        "profitability",
+        "cash_ratio",
+        "capex_intensity",
+        "rd_intensity",
+        "log_prcc_f",
+        "sic2_label",
+    ]
+    model_df = df.dropna(subset=sample_cols).copy()
+
+    spec_definitions = [
+        {
+            "label": "(1) Sentiment only",
+            "terms": ["sentiment_lag1"],
+            "industry_fe": "No",
+            "notes": "Baseline sentiment-return relation",
+        },
+        {
+            "label": "(2) + Firm size",
+            "terms": ["sentiment_lag1", "log_at"],
+            "industry_fe": "No",
+            "notes": "+ size control (log assets)",
+        },
+        {
+            "label": "(3) + Industry FE",
+            "terms": ["sentiment_lag1", "log_at", "C(sic2_label)"],
+            "industry_fe": "Yes",
+            "notes": "+ 2-digit SIC fixed effects",
+        },
+        {
+            "label": "(4) + Capital structure",
+            "terms": ["sentiment_lag1", "log_at", "log_dt", "leverage", "C(sic2_label)"],
+            "industry_fe": "Yes",
+            "notes": "+ total debt and leverage",
+        },
+        {
+            "label": "(5) + Sales scale",
+            "terms": ["sentiment_lag1", "log_at", "log_dt", "leverage", "log_sale", "C(sic2_label)"],
+            "industry_fe": "Yes",
+            "notes": "+ net sales",
+        },
+        {
+            "label": "(6) + Profitability & liquidity",
+            "terms": ["sentiment_lag1", "log_at", "log_dt", "leverage", "log_sale", "profitability", "cash_ratio", "C(sic2_label)"],
+            "industry_fe": "Yes",
+            "notes": "+ profitability and cash ratio",
+        },
+        {
+            "label": "(7) + Investment intensity",
+            "terms": ["sentiment_lag1", "log_at", "log_dt", "leverage", "log_sale", "profitability", "cash_ratio", "capex_intensity", "rd_intensity", "C(sic2_label)"],
+            "industry_fe": "Yes",
+            "notes": "+ capex and R&D intensity",
+        },
+        {
+            "label": "(8) + Stock price",
+            "terms": ["sentiment_lag1", "log_at", "log_dt", "leverage", "log_sale", "profitability", "cash_ratio", "capex_intensity", "rd_intensity", "log_prcc_f", "C(sic2_label)"],
+            "industry_fe": "Yes",
+            "notes": "+ stock price",
+        },
+        {
+            "label": "(9) Full company controls",
+            "terms": ["sentiment_lag1", "log_at", "log_dt", "leverage", "log_sale", "profitability", "cash_ratio", "capex_intensity", "rd_intensity", "log_prcc_f", "revenue_to_assets", "tax_to_assets", "C(sic2_label)"],
+            "industry_fe": "Yes",
+            "notes": "Full company-control specification",
+        },
+    ]
+
+    results: list[dict] = []
+    for spec in spec_definitions:
+        formula = "annual_return ~ " + " + ".join(spec["terms"])
+        model = smf.ols(formula=formula, data=model_df).fit(cov_type="cluster", cov_kwds={"groups": model_df["gvkey"]})
+        results.append(
+            {
+                **spec,
+                "model": model,
+                "table": extract_result_table(model),
+                "se_type": "Clustered by firm",
+                "rsquared": f"{float(model.rsquared):.3f}",
+            }
+        )
+
+    return results, model_df
+
+
+def save_company_regression_dashboard(specs: list[dict], output_path: Path) -> None:
+    """Create a compact PNG dashboard for the stepwise company-control regressions."""
+    rows = []
+    for spec in specs:
+        match = spec["table"].loc[spec["table"]["term"] == "sentiment_lag1"]
+        if match.empty:
+            continue
+        row = match.iloc[0]
+        rows.append(
+            {
+                "model": spec["label"],
+                "coef": float(row["coef"]),
+                "ci_low": float(row["ci_low"]),
+                "ci_high": float(row["ci_high"]),
+                "rsquared": float(spec["model"].rsquared),
+                "notes": spec["notes"],
+            }
+        )
+
+    plot_df = pd.DataFrame(rows)
+    fig = plt.figure(figsize=(18, 12))
+    grid = fig.add_gridspec(2, 2, height_ratios=[3.0, 2.2], width_ratios=[1.8, 1.2])
+    ax_coef = fig.add_subplot(grid[0, :])
+    ax_rsq = fig.add_subplot(grid[1, 0])
+    ax_text = fig.add_subplot(grid[1, 1])
+
+    y_pos = np.arange(len(plot_df))[::-1]
+    coef_values = plot_df["coef"].to_numpy()[::-1]
+    ci_low = plot_df["ci_low"].to_numpy()[::-1]
+    ci_high = plot_df["ci_high"].to_numpy()[::-1]
+    model_labels = plot_df["model"].to_list()[::-1]
+
+    ax_coef.errorbar(
+        coef_values,
+        y_pos,
+        xerr=[coef_values - ci_low, ci_high - coef_values],
+        fmt="o",
+        color="#2c3e50",
+        ecolor="#7f8c8d",
+        elinewidth=1.5,
+        capsize=4,
+        markersize=7,
+    )
+    ax_coef.axvline(0, color="black", linestyle="--", linewidth=1)
+    ax_coef.set_yticks(y_pos)
+    ax_coef.set_yticklabels(model_labels)
+    ax_coef.set_xlabel("Lagged Michigan sentiment coefficient")
+    ax_coef.set_title("M3v2 Stepwise Company Controls Dashboard")
+    ax_coef.grid(True, axis="x", alpha=0.25)
+    ax_coef.invert_yaxis()
+
+    rsq_colors = ["#5dade2" if value < 0.05 else "#2ecc71" for value in plot_df["rsquared"]]
+    ax_rsq.barh(model_labels, plot_df["rsquared"].to_list()[::-1], color=rsq_colors[::-1])
+    ax_rsq.set_xlabel("R-squared")
+    ax_rsq.set_title("Model fit by specification")
+    ax_rsq.set_xlim(0, max(plot_df["rsquared"]) * 1.2)
+    ax_rsq.grid(True, axis="x", alpha=0.25)
+
+    ax_text.axis("off")
+    text_lines = [
+        "What each step adds:",
+    ]
+    for idx, spec in enumerate(specs, start=1):
+        text_lines.append(f"{idx}. {spec['label'].split(') ', 1)[-1]}: {spec['notes']}")
+    text_lines.extend(
+        [
+            "",
+            "Interpretation:",
+            "The left panel shows whether the lagged sentiment effect survives as firm-level controls accumulate.",
+            "The right panel shows how much explanatory power each specification adds.",
+            "Common sample: all models use the same firm-year observations required by the full specification.",
+        ]
+    )
+    ax_text.text(
+        0.0,
+        1.0,
+        "\n".join(text_lines),
+        va="top",
+        ha="left",
+        fontsize=11,
+        linespacing=1.35,
+        family="DejaVu Sans",
+        bbox=dict(boxstyle="round,pad=0.6", facecolor="#f8f9fa", edgecolor="#d5d8dc"),
+    )
+
+    fig.suptitle(
+        "M3v2 Company Controls Regression Ladder",
+        fontsize=18,
+        fontweight="bold",
+        y=0.98,
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
 
 
 def coef_plot(result_specs: list[dict], output_path: Path) -> None:
@@ -523,6 +798,7 @@ def write_report(
     ols_covid_table: pd.DataFrame,
     fe_table: pd.DataFrame,
     did_table: pd.DataFrame,
+    company_table: pd.DataFrame,
     bp_table: pd.DataFrame,
     vif_table: pd.DataFrame,
     robustness_table: pd.DataFrame,
@@ -530,6 +806,7 @@ def write_report(
     covid_nobs: int,
     fe_nobs: int,
     did_nobs: int,
+    company_nobs: int,
 ) -> None:
     """Write the plain-language M3v2 memo to both the root and reports folders."""
     fe_sent = fe_table.loc[fe_table["term"] == "sentiment_x_small"].iloc[0]
@@ -537,6 +814,11 @@ def write_report(
     did_covid = did_table.loc[did_table["term"] == "sentiment_x_small_post_covid"].iloc[0]
     ols_sent = ols_full_table.loc[ols_full_table["term"] == "sentiment_lag1"].iloc[0]
     ols_covid_sent = ols_covid_table.loc[ols_covid_table["term"] == "sentiment_lag1"].iloc[0]
+    company_first_col = company_table.columns[1]
+    company_last_col = company_table.columns[-1]
+    company_sent_base = company_table.loc[company_table["Term"] == "Lagged Michigan sentiment", company_first_col].iloc[0]
+    company_sent_full = company_table.loc[company_table["Term"] == "Lagged Michigan sentiment", company_last_col].iloc[0]
+    company_rsq_full = company_table.loc[company_table["Term"] == "R-squared", company_last_col].iloc[0]
 
     lines = [
         "# M3v2 Interpretation: Firm Panel Fixed Effects, DiD, and OLS",
@@ -560,12 +842,17 @@ def write_report(
         "   - Shock windows: post-GFC and post-COVID",
         "   - Key terms: lagged sentiment x small-firm x post-shock interactions",
         "   - Standard errors: clustered by firm",
+        "5. **Company-controls regression ladder**",
+        "   - Outcome: annual firm return proxy",
+        "   - Sequence: sentiment only, firm size, industry FE, capital structure, sales scale, profitability/liquidity, investment intensity, stock price, and full controls",
+        "   - Standard errors: clustered by firm",
         "",
         "## Sample sizes",
         f"- Full-period OLS observations: **{ols_full_nobs}**",
         f"- COVID-only OLS observations: **{covid_nobs}**",
         f"- FE observations: **{fe_nobs}**",
         f"- DiD observations: **{did_nobs}**",
+        f"- Company-controls ladder observations: **{company_nobs}**",
         "",
         "## Main findings",
         "### 1) Full-period OLS",
@@ -591,6 +878,13 @@ def write_report(
         "- The pooled OLS models estimate the direct association between lagged sentiment and firm returns.",
         "- The FE and DiD models are stricter: year fixed effects absorb the common sentiment level, so the estimable signal is whether small firms are more sensitive to sentiment and whether that sensitivity changes after shocks.",
         "- Positive interaction terms imply small firms load more heavily on sentiment after the relevant shock; negative terms imply the opposite.",
+        "",
+        "## Company-controls ladder",
+        f"- Baseline lagged sentiment coefficient: {company_sent_base}",
+        f"- Full controls lagged sentiment coefficient: {company_sent_full}",
+        f"- Full controls R-squared: {company_rsq_full}",
+        "- The stepwise table keeps the same sample and adds size, industry, capital structure, sales scale, profitability, liquidity, investment, and market-valuation controls in a cumulative order.",
+        "- This is the cleanest publication table for the company-data story because it shows whether sentiment remains informative after standard corporate controls enter the model.",
         "",
         "## Diagnostics",
         f"- Breusch-Pagan p-value: **{bp_table.loc[0, 'lm_p_value']:.4f}**",
@@ -624,6 +918,7 @@ def write_report(
             "- `results/figures/m3v2_coefficient_comparison.png`: tornado plot of coefficients across specifications.",
             "- `results/figures/m3v2_model_specifications.png`: R-squared comparison and FE indicators.",
             "- `results/figures/m3v2_interaction_elasticity.png`: sentiment elasticity by firm size (FE model).",
+            "- `results/figures/m3v2_company_regression_dashboard.png`: stepwise company-controls dashboard.",
             "",
             "## Practical caveat",
             "- This is a genuine firm-year panel, but the sentiment series is still common to all firms in a given year.",
@@ -641,6 +936,8 @@ def write_report(
             "- `results/tables/m3v2_robustness_checks.csv`",
             "- `results/tables/m3v2_model_comparison_table.csv`",
             "- `results/tables/m3v2_model_comparison_table.md`",
+            "- `results/tables/m3v2_company_model_comparison_table.csv`",
+            "- `results/tables/m3v2_company_model_comparison_table.md`",
             "- `results/figures/m3v2_group_trends.png`",
             "- `results/figures/m3v2_did_event_study.png`",
             "- `results/figures/m3v2_ols_fitted_scatter.png`",
@@ -651,6 +948,7 @@ def write_report(
             "- `results/figures/m3v2_coefficient_comparison.png`",
             "- `results/figures/m3v2_model_specifications.png`",
             "- `results/figures/m3v2_interaction_elasticity.png`",
+            "- `results/figures/m3v2_company_regression_dashboard.png`",
         ]
     )
 
@@ -846,6 +1144,7 @@ def main() -> None:
     ols_full_result, ols_full_df = fit_pooled_ols(firm, lag_column="sentiment_lag1", covid_only=False)
     ols_covid_result, ols_covid_df = fit_pooled_ols(firm, lag_column="sentiment_lag1", covid_only=True)
     fe_result, did_result, panel = fit_panel_models(firm)
+    company_results, company_df = fit_company_control_models(firm)
 
     ols_full_table = extract_result_table(ols_full_result)
     ols_covid_table = extract_result_table(ols_covid_result)
@@ -853,6 +1152,7 @@ def main() -> None:
     did_table = extract_result_table(did_result)
     bp_table, vif_table = run_diagnostics(ols_full_result, ols_full_df)
     robustness_table = run_robustness_checks(firm, ols_full_result, fe_result)
+    company_table, company_markdown = build_company_comparison_table(company_results)
 
     ols_full_table.to_csv(TABLES_DIR / "m3v2_ols_full_period_results.csv", index=False)
     ols_covid_table.to_csv(TABLES_DIR / "m3v2_ols_covid_only_results.csv", index=False)
@@ -861,6 +1161,8 @@ def main() -> None:
     bp_table.to_csv(TABLES_DIR / "m3v2_bp_test_results.csv", index=False)
     vif_table.to_csv(TABLES_DIR / "m3v2_vif_results.csv", index=False)
     robustness_table.to_csv(TABLES_DIR / "m3v2_robustness_checks.csv", index=False)
+    company_table.to_csv(TABLES_DIR / "m3v2_company_model_comparison_table.csv", index=False)
+    (TABLES_DIR / "m3v2_company_model_comparison_table.md").write_text(company_markdown, encoding="utf-8")
 
     comparison_specs = [
         {
@@ -913,6 +1215,8 @@ def main() -> None:
     comparison_table.to_csv(TABLES_DIR / "m3v2_model_comparison_table.csv", index=False)
     (TABLES_DIR / "m3v2_model_comparison_table.md").write_text(comparison_markdown, encoding="utf-8")
 
+    save_company_regression_dashboard(company_results, FIGURES_DIR / "m3v2_company_regression_dashboard.png")
+
     save_panel_figures(panel)
     save_diagnostic_plots(ols_full_result, ols_full_df)
     coef_plot(
@@ -953,6 +1257,7 @@ def main() -> None:
         ols_covid_table=ols_covid_table,
         fe_table=fe_table,
         did_table=did_table,
+        company_table=company_table,
         bp_table=bp_table,
         vif_table=vif_table,
         robustness_table=robustness_table,
@@ -960,6 +1265,7 @@ def main() -> None:
         covid_nobs=int(ols_covid_result.nobs),
         fe_nobs=int(fe_result.nobs),
         did_nobs=int(did_result.nobs),
+        company_nobs=int(company_df.shape[0]),
     )
 
     print("M3v2 analysis completed.")
@@ -973,12 +1279,15 @@ def main() -> None:
     print(f"- {TABLES_DIR / 'm3v2_robustness_checks.csv'}")
     print(f"- {TABLES_DIR / 'm3v2_model_comparison_table.csv'}")
     print(f"- {TABLES_DIR / 'm3v2_model_comparison_table.md'}")
+    print(f"- {TABLES_DIR / 'm3v2_company_model_comparison_table.csv'}")
+    print(f"- {TABLES_DIR / 'm3v2_company_model_comparison_table.md'}")
     print(f"- {FIGURES_DIR / 'm3v2_group_trends.png'}")
     print(f"- {FIGURES_DIR / 'm3v2_ols_fitted_scatter.png'}")
     print(f"- {FIGURES_DIR / 'm3v2_residuals_vs_fitted.png'}")
     print(f"- {FIGURES_DIR / 'm3v2_residuals_qq.png'}")
     print(f"- {FIGURES_DIR / 'm3v2_residuals_hist.png'}")
     print(f"- {FIGURES_DIR / 'm3v2_fe_did_coefficients.png'}")
+    print(f"- {FIGURES_DIR / 'm3v2_company_regression_dashboard.png'}")
     print(f"- {ROOT_REPORT_PATH}")
     print(f"- {REPORT_PATH}")
 

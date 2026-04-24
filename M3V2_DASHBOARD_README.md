@@ -2,11 +2,11 @@
 
 ## Summary
 
-You now have an **investor-ready interactive dashboard** and **4 new publication-quality visualizations** for the M3v2 firm-panel analysis. These additions provide comprehensive visual evidence for difference-in-differences (DiD) and fixed-effects (FE) regressions.
+You now have an **investor-ready interactive dashboard** and **5 new publication-quality visualizations** for the M3v2 firm-panel analysis. These additions provide comprehensive visual evidence for difference-in-differences (DiD), fixed-effects (FE), and the new company-controls regression ladder.
 
 ---
 
-## 📊 Interactive Dashboard
+## Interactive Dashboard
 
 ### File
 - **Location:** `results/reports/M3v2_interactive_dashboard.html`
@@ -26,7 +26,11 @@ You now have an **investor-ready interactive dashboard** and **4 new publication
    - Model fit comparison (R² bar chart)
    - Model specifications summary table with FE indicators
 
-4. **Interactive Coefficient Explorer**
+4. **Company Controls Ladder**
+   - Stepwise PNG dashboard summarizing the sentiment coefficient as controls accumulate
+   - Publication-style table for the company-data regression sequence
+
+5. **Interactive Coefficient Explorer**
    - Hover over coefficients to see 95% confidence intervals
    - Compare across OLS Full, OLS COVID, FE TWFE, and DiD TWFE
    - Visual filtering by model
@@ -35,12 +39,12 @@ You now have an **investor-ready interactive dashboard** and **4 new publication
    - Baseline vs alternative specifications summary
    - Includes lags, COVID exclusion, size subsamples, placebo tests
 
-6. **Econometric Diagnostics**
+7. **Econometric Diagnostics**
    - Breusch-Pagan test results (heteroskedasticity check)
    - VIF statistics (multicollinearity check)
    - Interpretation guidance
 
-7. **Visual Evidence Reference**
+8. **Visual Evidence Reference**
    - Descriptions of all 10 static figures
    - Links to additional technical memo
 
@@ -51,7 +55,7 @@ You now have an **investor-ready interactive dashboard** and **4 new publication
 
 ---
 
-## 📈 New Visualizations (4 Added)
+## 📈 New Visualizations (5 Added)
 
 ### 1. DiD Event Study (`m3v2_did_event_study.png`)
 **Purpose:** Show how returns diverge between small and large firms around crisis periods
@@ -107,23 +111,34 @@ You now have an **investor-ready interactive dashboard** and **4 new publication
 
 **Investor takeaway:** Quantifies the differential exposure: how much extra return sensitivity small firms have per unit of sentiment
 
+### 5. Company Controls Dashboard (`m3v2_company_regression_dashboard.png`)
+**Purpose:** Show how the lagged sentiment coefficient changes as firm-level controls are added in a stepwise sequence
+
+**What it shows:**
+- Top panel: lagged sentiment coefficient with 95% confidence intervals across all company-control specifications
+- Bottom-left panel: R-squared progression as controls accumulate
+- Bottom-right panel: plain-language explanation of each step in the ladder
+
+**Investor takeaway:** A publication-ready view of whether the sentiment result is robust after standard company characteristics are controlled for
+
 ---
 
-## 📁 Complete M3v2 Deliverables
+## Complete M3v2 Deliverables
 
 ### All New Figures (10 total)
 ```
 results/figures/
 ├── m3v2_group_trends.png          (original) Long-run trends
-├── m3v2_did_event_study.png       ⭐ NEW    Event studies around shocks
+├── m3v2_did_event_study.png       NEW    Event studies around shocks
 ├── m3v2_ols_fitted_scatter.png    (original) Actual vs fitted
 ├── m3v2_residuals_vs_fitted.png   (original) Diagnostic: residual spread
 ├── m3v2_residuals_qq.png          (original) Diagnostic: Q-Q plot
 ├── m3v2_residuals_hist.png        (original) Diagnostic: histogram
 ├── m3v2_fe_did_coefficients.png   (original) FE & DiD coef with CIs
-├── m3v2_coefficient_comparison.png ⭐ NEW   Tornado plot
-├── m3v2_model_specifications.png   ⭐ NEW   R² comparison
-└── m3v2_interaction_elasticity.png ⭐ NEW   Sentiment × size elasticity
+├── m3v2_coefficient_comparison.png NEW   Tornado plot
+├── m3v2_model_specifications.png   NEW   R² comparison
+├── m3v2_interaction_elasticity.png NEW   Sentiment × size elasticity
+└── m3v2_company_regression_dashboard.png NEW   Stepwise company-controls dashboard
 ```
 
 ### Tables (9 CSV files)
@@ -137,7 +152,9 @@ results/tables/
 ├── m3v2_vif_results.csv                  (Variance inflation factors)
 ├── m3v2_robustness_checks.csv            (Sensitivity analysis)
 ├── m3v2_model_comparison_table.csv       (Side-by-side specs)
-└── m3v2_model_comparison_table.md        (Markdown version)
+├── m3v2_model_comparison_table.md        (Markdown version)
+├── m3v2_company_model_comparison_table.csv (Company-controls ladder)
+└── m3v2_company_model_comparison_table.md  (Markdown version)
 ```
 
 ### Data
@@ -150,7 +167,7 @@ results/tables/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Step 1: Regenerate all outputs
 ```bash
@@ -172,7 +189,7 @@ Browse all PNG figures in `results/figures/`
 
 ---
 
-## 💡 Key Insights Visualized
+## Key Insights Visualized
 
 ### DiD Event Study Shows
 - **GFC (2008):** Small firms' returns drop sharply relative to large firms
@@ -192,7 +209,7 @@ Browse all PNG figures in `results/figures/`
 
 ---
 
-## 📚 For Investors/Stakeholders
+## For Investors/Stakeholders
 
 **Use the interactive dashboard to:**
 1. Understand the research question and sample
@@ -223,13 +240,13 @@ Browse all PNG figures in `results/figures/`
 1. Loads firm-year panel from `us-comp.csv` (25,665 firms, 2001–2021)
 2. Constructs annual returns: (price change + dividends) / lagged price
 3. Merges Michigan sentiment (monthly → annual aggregation)
-4. Fits 4 models: OLS, OLS COVID, FE TWFE, DiD TWFE
+3. Fits 4 core models plus the new stepwise company-controls ladder
 5. Runs diagnostics and robustness checks
-6. Generates 10 figures + interactive dashboard
+5. Generates 11 figures + interactive dashboard
 
 ---
 
-## 📞 Questions?
+## Questions?
 
 Refer to:
 - `M3v2_interpretation.md` — Full technical documentation
@@ -239,4 +256,4 @@ Refer to:
 ---
 
 **Last updated:** April 22, 2026  
-**Status:** ✅ Complete and production-ready
+**Status:**  Complete and production-ready

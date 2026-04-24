@@ -66,6 +66,9 @@ Below is the consolidated set of null hypotheses implied by our research questio
 
 These H0 statements can be directly paired with alternative hypotheses in M3 regression/event-study testing and reported with p-values/confidence intervals.
 
+## Note Regarding M3
+
+M3 was redone as M3v2 because the earlier M3 data were not panel data. Some of the old M3 deliverables were deleted, but most were kept to show reproducability of the entire project and also because some useful analysis can be gathered from them. 
 
 ## M3v2 Firm-Panel Regression Deliverables
 

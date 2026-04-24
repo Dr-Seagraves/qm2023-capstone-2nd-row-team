@@ -1,0 +1,18 @@
+Term,(1) Sentiment only,(2) + Firm size,(3) + Industry FE,(4) + Capital structure,(5) + Sales scale,(6) + Profitability & liquidity,(7) + Investment intensity,(8) + Stock price,(9) Full company controls
+Lagged Michigan sentiment,0.025<br>(0.035),0.031<br>(0.037),0.029<br>(0.037),0.023<br>(0.037),0.025<br>(0.035),0.023<br>(0.034),0.023<br>(0.034),0.006<br>(0.029),0.004<br>(0.029)
+Firm size (log assets),,-0.675***<br>(0.220),-0.840***<br>(0.310),-1.155***<br>(0.372),-1.331***<br>(0.355),-1.634***<br>(0.476),-1.629***<br>(0.474),-2.145***<br>(0.729),-2.190***<br>(0.778)
+Total debt (log 1 + debt),,,,0.392***<br>(0.133),0.355**<br>(0.151),0.486**<br>(0.225),0.487**<br>(0.225),0.581**<br>(0.282),0.537**<br>(0.247)
+Leverage,,,,-0.010*<br>(0.006),-0.011*<br>(0.006),-0.012*<br>(0.006),-0.017<br>(0.011),-0.018<br>(0.011),-0.018<br>(0.011)
+Net sales (log 1 + sales),,,,,0.235<br>(0.439),0.555<br>(0.364),0.551<br>(0.366),0.091<br>(0.574),0.192<br>(0.500)
+Profitability,,,,,,0.006*<br>(0.003),0.005<br>(0.004),0.007<br>(0.005),0.008<br>(0.005)
+Cash ratio,,,,,,4.434<br>(3.545),4.473<br>(3.562),3.110<br>(2.932),3.229<br>(3.001)
+Capex intensity,,,,,,,1.504<br>(1.710),1.426<br>(1.655),1.441<br>(1.670)
+R&D intensity,,,,,,,-0.003<br>(0.007),-0.004<br>(0.007),-0.004<br>(0.008)
+Stock price (log 1 + price),,,,,,,,2.195<br>(1.616),2.281<br>(1.693)
+Revenue-to-assets,,,,,,,,,-0.063<br>(0.148)
+Taxes-to-assets,,,,,,,,,-14.708<br>(16.403)
+Industry FE,No,No,Yes,Yes,Yes,Yes,Yes,Yes,Yes
+Clustered SE,Clustered by firm,Clustered by firm,Clustered by firm,Clustered by firm,Clustered by firm,Clustered by firm,Clustered by firm,Clustered by firm,Clustered by firm
+Observations,52302,52302,52302,52302,52302,52302,52302,52302,52302
+R-squared,0.000,0.000,0.001,0.001,0.001,0.001,0.001,0.001,0.001
+Controls added,Baseline sentiment-return relation,+ size control (log assets),+ 2-digit SIC fixed effects,+ total debt and leverage,+ net sales,+ profitability and cash ratio,+ capex and R&D intensity,+ stock price,Full company-control specification
