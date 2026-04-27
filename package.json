@@ -1,0 +1,9 @@
+{
+  "name": "qm2023-capstone-docx-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "One-off document generation utilities for capstone deliverables",
+  "dependencies": {
+    "docx": "^9.5.1"
+  }
+}
