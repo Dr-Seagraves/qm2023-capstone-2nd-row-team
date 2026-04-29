@@ -174,6 +174,25 @@
 - Human verification:
     - I looked over the files, and noticed that some of them were not working. I reworked them, specifically the dashboard. 
 
+## Milestone 4
+
+## Task: Prepping the Memo
+- Files
+    - Final_Investment_Memo.md
+- AI help
+    - Prompt: "Can you create an investor-ready memo that summarizes this project and our findings from M1, M2, and M3v2. Also include our failures for M3. Make sure it fits all the "Team Memo" requirements in README M4.pdf and fits the format of memo_template.pdf. Check it against the rubric M$.pdf for the team memo portion. Make sure it has a lot of economic interpretation, and can be edited so we can put our own insigths in."
+- Human verification
+    - We read over the suggested memo and edited it to meet our specific challenges and interpretation
+    - We also converted the text file to the required pdf
+
+## Task: Making a Draft of the Powerpoint
+- Files:
+    - Final_Investment_Memo_Presentation.pptx
+    - create_final_investment_memo_presentation.js
+- AI Help:
+    - Prompt: "Can you create a powerpoint presentation that summarizes the project and out findings. Make it be about 10 slides or so long, and give us speaker notes for each slide"
+- Human verification:
+    - We downloaded the powerpoint and edited it
 
 ## 5. Validation and Quality Control
 
