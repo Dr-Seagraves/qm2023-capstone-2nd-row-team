@@ -181,8 +181,10 @@
     - Final_Investment_Memo.md
 - AI help
     - Prompt: "Can you create an investor-ready memo that summarizes this project and our findings from M1, M2, and M3v2. Also include our failures for M3. Make sure it fits all the "Team Memo" requirements in README M4.pdf and fits the format of memo_template.pdf. Check it against the rubric M$.pdf for the team memo portion. Make sure it has a lot of economic interpretation, and can be edited so we can put our own insigths in."
+    - Prompt: "Can you convert this memo to a word document that we can then edit?"
 - Human verification
     - We read over the suggested memo and edited it to meet our specific challenges and interpretation
+    - AI created the wrong file format, so we had to correct it
     - We also converted the text file to the required pdf
 
 ## Task: Making a Draft of the Powerpoint
