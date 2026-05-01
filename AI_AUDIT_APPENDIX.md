@@ -178,10 +178,13 @@
 
 ## Task: Prepping the Memo
 - Files
-    - Final_Investment_Memo.md
+    - Final_Investment_Memo.docx
+    - memo_four_figure_dashboard.png
 - AI help
     - Prompt: "Can you create an investor-ready memo that summarizes this project and our findings from M1, M2, and M3v2. Also include our failures for M3. Make sure it fits all the "Team Memo" requirements in README M4.pdf and fits the format of memo_template.pdf. Check it against the rubric M$.pdf for the team memo portion. Make sure it has a lot of economic interpretation, and can be edited so we can put our own insigths in."
     - Prompt: "Can you convert this memo to a word document that we can then edit?"
+    - Prompt: "Can you take the four figures listed in the memo (Figure 1: M2 rolling correlation and lag structure; figure 2: M3v2 small vs large firm trends; Figure 3: M3v2 event study around the GFC and COVID shocks; Figure 4: M3v2 residual diagnostics) and make a dashboard that displays all four?"
+    - Prompt: "I don't want an html dashboard. Just do an image or png"
 - Human verification
     - We read over the suggested memo and edited it to meet our specific challenges and interpretation
     - AI created the wrong file format, so we had to correct it
